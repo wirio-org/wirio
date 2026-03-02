@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import FastAPI
 
+from wirio import ServiceCollection
 from wirio.annotations import FromServices
-from wirio.service_collection import ServiceCollection
 
 
 class EmailService:

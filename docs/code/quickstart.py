@@ -1,6 +1,6 @@
 import asyncio
 
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 
 class EmailService:

@@ -16,7 +16,7 @@ To showcase the basics of Wirio, we will create a service collection able to res
 The next step is to create the service collection and register the dependencies we just defined.
 
 ```python title="main.py" hl_lines="4-5"
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 services = ServiceCollection()
 services.add_transient(EmailService)  # (1)!
@@ -81,7 +81,7 @@ Finally, we convert the service collection into a service provider, which will v
     ```python hl_lines="17-19 21-22"
     import asyncio
 
-    from wirio.service_collection import ServiceCollection
+    from wirio import ServiceCollection
 
     class EmailService:
         pass

@@ -9,7 +9,7 @@ Define a settings model and read it from `services.configuration`:
 
 ```python
 from pydantic import BaseModel
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 
 class ApplicationSettings(BaseModel):
@@ -60,7 +60,7 @@ A common pattern is reading typed settings inside a service factory:
 
 ```python
 from pydantic import BaseModel
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 
 class ApplicationSettings(BaseModel):
@@ -96,7 +96,7 @@ uv add "wirio[azure-key-vault]"
 Then add Key Vault as a configuration source:
 
 ```python
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 
 services = ServiceCollection()

@@ -22,7 +22,7 @@ Supported values by default are:
 ## Reading the current environment
 
 ```python
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 
 services = ServiceCollection()
@@ -35,7 +35,7 @@ print(services.environment.environment_name)
 Use the built-in helper methods when we only need a boolean check:
 
 ```python
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 
 services = ServiceCollection()
@@ -56,7 +56,7 @@ if services.environment.is_production():
 For custom values, use `is_environment(...)`:
 
 ```python
-from wirio.service_collection import ServiceCollection
+from wirio import ServiceCollection
 
 
 services = ServiceCollection()
