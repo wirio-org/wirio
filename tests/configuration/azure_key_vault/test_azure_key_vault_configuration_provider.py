@@ -107,6 +107,7 @@ class TestAzureKeyVaultConfigurationProvider:
         secret_client_patch.assert_called_once_with(
             vault_url=self.vault_url,
             credential=default_azure_credential_mock,
+            user_agent_policy=mocker.ANY,
         )
 
     async def test_use_default_azure_credential_when_none_is_passed(
@@ -155,6 +156,7 @@ class TestAzureKeyVaultConfigurationProvider:
         secret_client_patch.assert_called_once_with(
             vault_url=self.vault_url,
             credential=default_azure_credential_mock,
+            user_agent_policy=mocker.ANY,
         )
 
     async def test_skip_secret_without_name(self, mocker: MockerFixture) -> None:

@@ -1,10 +1,20 @@
 from typing import Final, final, override
 
 from azure.core.credentials_async import AsyncTokenCredential
+from azure.core.pipeline import PipelineRequest
+from azure.core.pipeline.policies import UserAgentPolicy
+from azure.core.pipeline.policies._universal import HTTPRequestType
 from azure.identity.aio import DefaultAzureCredential
 from azure.keyvault.secrets.aio import SecretClient
 
 from wirio.configuration.configuration_provider import ConfigurationProvider
+
+
+class _NoUserAgentPolicy(UserAgentPolicy):
+    """Agent to disable telemetry for Azure SDK clients."""
+
+    def on_request(self, request: PipelineRequest[HTTPRequestType]) -> None:
+        pass
 
 
 @final
@@ -28,7 +38,9 @@ class AzureKeyVaultConfigurationProvider(ConfigurationProvider):
         async with (
             self._credential,
             SecretClient(
-                vault_url=self._url, credential=self._credential
+                vault_url=self._url,
+                credential=self._credential,
+                user_agent_policy=_NoUserAgentPolicy(),
             ) as secret_client,
         ):
             secret_names = await self.get_secret_names(secret_client)

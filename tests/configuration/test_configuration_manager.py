@@ -11,17 +11,17 @@ from wirio.configuration.configuration_provider import ConfigurationProvider
 from wirio.configuration.configuration_source import ConfigurationSource
 
 if TYPE_CHECKING:
-    from azure.identity.aio import DefaultAzureCredential
+    from azure.core.credentials_async import AsyncTokenCredential
 
     from wirio.configuration.azure_key_vault.azure_key_vault_configuration_source import (
         AzureKeyVaultConfigurationSource,
     )
 else:
-    DefaultAzureCredential = Any
+    AsyncTokenCredential = Any
     AzureKeyVaultConfigurationSource = Any
 
 try:
-    from azure.identity.aio import DefaultAzureCredential
+    from azure.core.credentials_async import AsyncTokenCredential
 
     from wirio.configuration.azure_key_vault.azure_key_vault_configuration_source import (
         AzureKeyVaultConfigurationSource,
@@ -185,24 +185,23 @@ class TestConfigurationManager:
         reason=ExtraDependencies.AZURE_KEY_VAULT_NOT_INSTALLED_ERROR_MESSAGE,
     )
     def test_add_azure_key_vault(self, mocker: MockerFixture) -> None:
-        vault_url = "https://example.vault.azure.net/"
-        credential = mocker.create_autospec(DefaultAzureCredential, instance=True)
-        credential.__aenter__.return_value = credential
-        credential.__aexit__.return_value = None
-        provider = mocker.create_autospec(ConfigurationProvider, instance=True)
-        provider.load.return_value = None
-        configuration_source_patch = mocker.patch.object(
-            AzureKeyVaultConfigurationSource,
-            AzureKeyVaultConfigurationSource.build.__name__,
-            autospec=True,
-            return_value=provider,
+        expected_vault_url = "https://example.vault.azure.net"
+        token_credential_mock = mocker.create_autospec(
+            AsyncTokenCredential,
+            instance=True,
         )
         configuration_manager = ConfigurationManager(content_root_path="")
-
-        configuration_manager.add_azure_key_vault(url=vault_url, credential=credential)
-
-        assert len(configuration_manager.sources) == 1
-        assert isinstance(
-            configuration_manager.sources[0], AzureKeyVaultConfigurationSource
+        add_patch = mocker.patch.object(
+            configuration_manager,
+            configuration_manager.add.__name__,
+            autospec=True,
         )
-        configuration_source_patch.assert_called_once()
+
+        configuration_manager.add_azure_key_vault(
+            url=expected_vault_url,
+            credential=token_credential_mock,
+        )
+
+        add_patch.assert_called_once()
+        source = add_patch.call_args.args[0]
+        assert isinstance(source, AzureKeyVaultConfigurationSource)
