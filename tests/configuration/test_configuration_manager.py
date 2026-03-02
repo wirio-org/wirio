@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, final, override
 
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pytest_mock import MockerFixture
 
 from wirio._utils._extra_dependencies import ExtraDependencies
@@ -205,3 +205,42 @@ class TestConfigurationManager:
         add_patch.assert_called_once()
         source = add_patch.call_args.args[0]
         assert isinstance(source, AzureKeyVaultConfigurationSource)
+
+    def test_get_configuration_by_key(self) -> None:
+        expected_configuration_value = "wirio"
+        configuration_manager = ConfigurationManager(content_root_path="")
+        configuration_manager.add(
+            _StaticConfigurationSource({"app_name": expected_configuration_value})
+        )
+
+        configuration_value = configuration_manager["app_name"]
+
+        assert configuration_value == expected_configuration_value
+
+    def test_fail_when_getting_missing_configuration_by_key(self) -> None:
+        configuration_manager = ConfigurationManager(content_root_path="")
+        configuration_manager.add(_StaticConfigurationSource({"app_name": "wirio"}))
+
+        with pytest.raises(KeyError) as exception_info:
+            configuration_manager["port"]
+
+        assert (
+            exception_info.value.args[0] == "Missing configuration value for key 'port'"
+        )
+
+    def test_use_default_factory_for_missing_optional_configuration(self) -> None:
+        class Settings(BaseModel):
+            app_name: str
+            api_url: str = Field(default_factory=lambda: "https://localhost")
+
+        expected_app_name = "wirio"
+        expected_api_url = "https://localhost"
+        configuration_manager = ConfigurationManager(content_root_path="")
+        configuration_manager.add(
+            _StaticConfigurationSource({"app_name": expected_app_name})
+        )
+
+        settings = configuration_manager[Settings]
+
+        assert settings.app_name == expected_app_name
+        assert settings.api_url == expected_api_url

@@ -69,7 +69,7 @@ def FromKeyedServices(  # noqa: N802
     """Indicate that the parameter should be bound using the keyed service registered with the specified key."""
 
     def _dependency() -> FromKeyedServicesInjectable:
-        is_key_not_provided = key is WirioUndefined.INSTANCE
+        is_key_not_provided = isinstance(key, WirioUndefined)
 
         if is_key_not_provided:
             return FromKeyedServicesInjectable(

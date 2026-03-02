@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Coroutine
 from pathlib import Path
 from threading import Thread
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, final, overload
 
 from pydantic import BaseModel
 
@@ -94,7 +94,22 @@ class ConfigurationManager(ConfigurationBuilder):
 
         return WirioUndefined.INSTANCE
 
-    def __getitem__[T: BaseModel](self, key: type[T]) -> T:
+    @overload
+    def __getitem__[T: BaseModel](self, key: str) -> str | None: ...
+
+    @overload
+    def __getitem__[T: BaseModel](self, key: type[T]) -> T: ...
+
+    def __getitem__[T: BaseModel](self, key: str | type[T]) -> str | None | T:
+        if isinstance(key, str):
+            value = self._try_get_configuration(key)
+
+            if isinstance(value, WirioUndefined):
+                error_message = f"Missing configuration value for key '{key}'"
+                raise KeyError(error_message)
+
+            return value
+
         values: dict[str, str | None] = {}
 
         for field_name, field_info in key.model_fields.items():
