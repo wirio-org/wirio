@@ -8,27 +8,33 @@ from wirio._utils._extra_dependencies import ExtraDependencies
 from wirio.configuration.convention_changer import ConventionChanger
 
 if TYPE_CHECKING:
+    from azure.core.pipeline import PipelineRequest
     from azure.identity.aio import DefaultAzureCredential
     from azure.keyvault.secrets import KeyVaultSecret, SecretProperties
     from azure.keyvault.secrets.aio import SecretClient
 
     from wirio.configuration.azure_key_vault.azure_key_vault_configuration_provider import (
         AzureKeyVaultConfigurationProvider,
+        _NoUserAgentPolicy,  # pyright: ignore[reportPrivateUsage]
     )
 else:
+    PipelineRequest = Any
     DefaultAzureCredential = Any
     KeyVaultSecret = Any
     SecretProperties = Any
     SecretClient = Any
+    _NoUserAgentPolicy = Any
     AzureKeyVaultConfigurationProvider = Any
 
 try:
+    from azure.core.pipeline import PipelineRequest
     from azure.identity.aio import DefaultAzureCredential
     from azure.keyvault.secrets import KeyVaultSecret, SecretProperties
     from azure.keyvault.secrets.aio import SecretClient
 
     from wirio.configuration.azure_key_vault.azure_key_vault_configuration_provider import (
         AzureKeyVaultConfigurationProvider,
+        _NoUserAgentPolicy,  # pyright: ignore[reportPrivateUsage]
     )
 except ImportError:
     pass
@@ -249,3 +255,11 @@ class TestAzureKeyVaultConfigurationProvider:
         secret_client_mock.get_secret.assert_called_once_with(
             secret_properties_mock.name
         )
+
+    def test_not_modify_user_agent_header(self, mocker: MockerFixture) -> None:
+        pipeline_request_mock = mocker.create_autospec(PipelineRequest, instance=True)
+        agent_policy = _NoUserAgentPolicy()
+
+        agent_policy.on_request(pipeline_request_mock)
+
+        assert pipeline_request_mock.mock_calls == []
