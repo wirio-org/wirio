@@ -128,15 +128,23 @@ class ConfigurationManager(ConfigurationBuilder):
 
     @overload
     def get_value[TField](
-        self, key: str, value_type: type[TField], default: TField | None = None
-    ) -> TField: ...
+        self, key: str, value_type: type[TField]
+    ) -> TField | None: ...
 
-    def get_value[TField](
+    @overload
+    def get_value[TField, TFieldDefault](
+        self,
+        key: str,
+        value_type: type[TField],
+        default: TFieldDefault | None = None,
+    ) -> TField | TFieldDefault: ...
+
+    def get_value[TField, TFieldDefault](
         self,
         key: str,
         value_type: type[TField] | WirioUndefined = WirioUndefined.INSTANCE,
-        default: TField | None = None,
-    ) -> str | None | TField:
+        default: TFieldDefault | None = None,
+    ) -> str | None | TField | TFieldDefault:
         """Get a configuration value by its key. Optionally, validate the configuration value against the specified type."""
         value = self._try_get_configuration(key)
 

@@ -133,7 +133,7 @@ class TestConfigurationManager:
             _DictionaryConfigurationSource({"app_name": expected_configuration_value})
         )
 
-        configuration_value = configuration_manager.get_value("app_name")
+        configuration_value = configuration_manager.get_value("app_name", default="a")
 
         assert isinstance(configuration_value, str)
         assert configuration_value == expected_configuration_value
