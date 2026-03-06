@@ -1,9 +1,12 @@
 import json
 import re
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
+from pydantic import BaseModel
 
+from wirio.configuration.configuration_manager import ConfigurationManager
 from wirio.configuration.json.json_configuration_provider import (
     JsonConfigurationProvider,
 )
@@ -70,3 +73,39 @@ class TestJsonConfigurationProvider:
             match=re.escape("Could not parse the JSON file"),
         ):
             await provider.load()
+
+    async def test_get_model(self, tmp_path: Path) -> None:
+        class Settings(BaseModel):
+            app_name: str
+            port: int
+            enabled: bool
+            notes: str | None
+            price_as_float: float
+            price_as_decimal: Decimal
+
+        expected_app_name = "wirio"
+        expected_port = 8080
+        expected_enabled = True
+        expected_notes = None
+        expected_price_as_float = 19.99
+        expected_price_as_decimal = Decimal("19.99")
+        file_path = tmp_path / "appsettings.json"
+        file_path.write_text(
+            '{"appName": "wirio", "port": 8080, "enabled": true, "notes": null, "priceAsFloat": 19.99, "priceAsDecimal": 19.99}',
+            encoding="utf-8",
+        )
+
+        configuration_manager = ConfigurationManager(content_root_path=str(tmp_path))
+        configuration_manager.add_json_file(
+            path="appsettings.json",
+            optional=False,
+        )
+
+        model = configuration_manager.get_model(Settings)
+
+        assert model.app_name == expected_app_name
+        assert model.port == expected_port
+        assert model.enabled == expected_enabled
+        assert model.notes == expected_notes
+        assert model.price_as_float == expected_price_as_float
+        assert model.price_as_decimal == expected_price_as_decimal

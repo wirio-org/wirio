@@ -18,7 +18,7 @@ class ConfigurationSection:
 
     @property
     def path(self) -> str:
-        """Get the full path of this section from the `IConfigurationRoot`."""
+        """Get the full path of this section from the `ConfigurationRoot`."""
         return self._path
 
     @property

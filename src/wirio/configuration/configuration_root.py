@@ -8,11 +8,11 @@ if TYPE_CHECKING:
 
 
 class ConfigurationRoot(ABC):
+    """Represent the root node for a configuration."""
+
     @property
     @abstractmethod
     def providers(self) -> list["ConfigurationProvider"]: ...
-
-    """Represent the root node for a configuration."""
 
     @overload
     @abstractmethod
@@ -28,8 +28,6 @@ class ConfigurationRoot(ABC):
     def get_value[TField](
         self, key: str, value_type: type[TField] | None = None
     ) -> str | None | TField: ...
-
-    """Get a configuration value by its key. Optionally, validate the configuration value against the specified type."""
 
     def _try_get_configuration(self, key: str) -> str | None | WirioUndefined:
         for provider in reversed(self.providers):

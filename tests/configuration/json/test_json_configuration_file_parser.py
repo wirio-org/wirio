@@ -1,14 +1,9 @@
-import json
 import re
-from pathlib import Path
 
 import pytest
 
 from wirio.configuration.json.json_configuration_file_parser import (
     JsonConfigurationFileParser,
-)
-from wirio.configuration.json.json_configuration_provider import (
-    JsonConfigurationProvider,
 )
 
 
@@ -22,6 +17,7 @@ class TestJsonConfigurationFileParser:
                 "port": 8080,
                 "enabled": True,
                 "notes": None,
+                "price": 19.99,
             }
         )
 
@@ -30,6 +26,7 @@ class TestJsonConfigurationFileParser:
             "port": "8080",
             "enabled": "True",
             "notes": None,
+            "price": "19.99",
         }
 
     def test_parse_nested_objects_and_arrays(self) -> None:
@@ -73,24 +70,3 @@ class TestJsonConfigurationFileParser:
             match=re.escape("A duplicate key 'key' was found"),
         ):
             parser.parse_json({"Key": "value", "key": "other"})
-
-    async def test_fail_when_json_file_has_invalid_syntax(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "appsettings.json"
-        file_path.write_text('{"appName": "wirio"', encoding="utf-8")
-        provider = JsonConfigurationProvider(path=file_path, optional=False)
-
-        with pytest.raises(json.JSONDecodeError):
-            await provider.load()
-
-    async def test_fail_when_json_root_value_is_not_object(
-        self, tmp_path: Path
-    ) -> None:
-        file_path = tmp_path / "appsettings.json"
-        file_path.write_text('["wirio", "config"]', encoding="utf-8")
-        provider = JsonConfigurationProvider(path=file_path, optional=False)
-
-        with pytest.raises(
-            RuntimeError,
-            match=re.escape("Could not parse the JSON file"),
-        ):
-            await provider.load()

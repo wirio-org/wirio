@@ -7,7 +7,7 @@ class ConfigurationPath:
     KEY_DELIMITER: ClassVar[str] = ":"
 
     @staticmethod
-    def get_section_key(path: str) -> str | None:
+    def get_section_key(path: str) -> str:
         """Extract the last path segment from the path.
 
         Args:

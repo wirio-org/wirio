@@ -199,7 +199,7 @@ class TestConfigurationManager:
 
         assert "validation error" in str(exception_info.value)
 
-    def test_get_model(self) -> None:
+    def test_get_model_when_event_loop_is_not_running(self) -> None:
         expected_app_name = "wirio"
         expected_port = "8080"
         configuration_manager = ConfigurationManager(content_root_path="")

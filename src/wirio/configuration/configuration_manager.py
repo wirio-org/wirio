@@ -133,6 +133,7 @@ class ConfigurationManager(ConfigurationBuilder, ConfigurationRoot):
     def get_value[TField](
         self, key: str, value_type: type[TField] | None = None
     ) -> str | None | TField:
+        """Get a configuration value by its key. Optionally, validate the configuration value against the specified type."""
         value = self._try_get_configuration(key)
 
         if isinstance(value, WirioUndefined):

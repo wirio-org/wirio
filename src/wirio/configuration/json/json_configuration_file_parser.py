@@ -5,7 +5,7 @@ from wirio.configuration.configuration_path import ConfigurationPath
 
 class JsonConfigurationFileParser:
     _data: Final[dict[str, str | None]]
-    _case_folded_data: Final[dict[str, str | None]]
+    _case_folded_data: Final[dict[str, str]]
     _paths: Final[list[str]]
 
     def __init__(self) -> None:
