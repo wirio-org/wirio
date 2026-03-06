@@ -1,12 +1,18 @@
 import json
 from pathlib import Path
-from typing import Any, final, override
+from typing import Any, Final, cast, final, override
 
 from wirio.configuration.configuration_provider import ConfigurationProvider
+from wirio.configuration.json.json_configuration_file_parser import (
+    JsonConfigurationFileParser,
+)
 
 
 @final
 class JsonConfigurationProvider(ConfigurationProvider):
+    _path: Final[Path]
+    _optional: Final[bool]
+
     def __init__(self, path: Path, optional: bool) -> None:
         super().__init__()
         self._path = path
@@ -23,23 +29,16 @@ class JsonConfigurationProvider(ConfigurationProvider):
             error_message = f"Configuration file '{self._path}' was not found"
             raise FileNotFoundError(error_message)
 
+        json_data: Any = {}
+
         with self._path.open(encoding="utf-8") as file:
             json_data = json.load(file)
 
-        self._data = {
-            str(key): self._convert_to_configuration_value(value)
-            for key, value in json_data.items()
-        }
+        if not isinstance(json_data, dict):
+            error_message = "Could not parse the JSON file"
+            raise RuntimeError(error_message)  # noqa: TRY004
+
+        self._data = JsonConfigurationFileParser().parse_json(
+            cast("dict[str, Any]", json_data)
+        )
         await super().load()
-
-    def _convert_to_configuration_value(
-        self,
-        value: Any,  # noqa: ANN401
-    ) -> str | None:
-        if value is None:
-            return None
-
-        if isinstance(value, str):
-            return value
-
-        return str(value)

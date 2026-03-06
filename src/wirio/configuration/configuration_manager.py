@@ -2,13 +2,15 @@ import asyncio
 from collections.abc import Coroutine
 from pathlib import Path
 from threading import Thread
-from typing import TYPE_CHECKING, Any, final, overload
+from typing import TYPE_CHECKING, Any, final, overload, override
 
 from pydantic import BaseModel, TypeAdapter
 
 from wirio._utils._extra_dependencies import ExtraDependencies
 from wirio.configuration.configuration_builder import ConfigurationBuilder
 from wirio.configuration.configuration_provider import ConfigurationProvider
+from wirio.configuration.configuration_root import ConfigurationRoot
+from wirio.configuration.configuration_section import ConfigurationSection
 from wirio.configuration.configuration_source import ConfigurationSource
 from wirio.configuration.environment_variables.environment_variables_configuration_source import (
     EnvironmentVariablesConfigurationSource,
@@ -28,7 +30,7 @@ else:
 
 
 @final
-class ConfigurationManager(ConfigurationBuilder):
+class ConfigurationManager(ConfigurationBuilder, ConfigurationRoot):
     _sources: list[ConfigurationSource]
     _providers: list[ConfigurationProvider]
 
@@ -40,6 +42,11 @@ class ConfigurationManager(ConfigurationBuilder):
     @property
     def sources(self) -> list[ConfigurationSource]:
         return self._sources
+
+    @property
+    @override
+    def providers(self) -> list[ConfigurationProvider]:
+        return self._providers
 
     def add(self, source: ConfigurationSource) -> None:
         self._add_source(source)
@@ -85,15 +92,6 @@ class ConfigurationManager(ConfigurationBuilder):
             thread.start()
             thread.join()
 
-    def _try_get_configuration(self, key: str) -> str | None | WirioUndefined:
-        for provider in reversed(self._providers):
-            value = provider.try_get(key)
-
-            if not isinstance(value, WirioUndefined):
-                return value
-
-        return WirioUndefined.INSTANCE
-
     @overload
     def get_required_value(self, key: str) -> str: ...
 
@@ -131,10 +129,9 @@ class ConfigurationManager(ConfigurationBuilder):
         self, key: str, value_type: type[TField]
     ) -> TField | None: ...
 
+    @override
     def get_value[TField](
-        self,
-        key: str,
-        value_type: type[TField] | WirioUndefined = WirioUndefined.INSTANCE,
+        self, key: str, value_type: type[TField] | None = None
     ) -> str | None | TField:
         """Get a configuration value by its key. Optionally, validate the configuration value against the specified type."""
         value = self._try_get_configuration(key)
@@ -142,7 +139,7 @@ class ConfigurationManager(ConfigurationBuilder):
         if isinstance(value, WirioUndefined):
             return None
 
-        if isinstance(value_type, WirioUndefined):
+        if value_type is None:
             return value
 
         if value is None:
@@ -150,13 +147,20 @@ class ConfigurationManager(ConfigurationBuilder):
 
         return TypeAdapter(value_type).validate_python(value)
 
-    def get_model[TModel: BaseModel](self, key: type[TModel]) -> TModel:
-        values: dict[str, str | None] = {}
+    def get_model[TModel: BaseModel](self, model_type: type[TModel]) -> TModel:
+        """Get a configuration model of the specified type. The configuration values will be mapped to the model fields by their names."""
+        values: dict[str, Any] = {}
 
-        for field_name, field_info in key.model_fields.items():
+        for field_name, field_info in model_type.model_fields.items():
             value = self._try_get_configuration(field_name)
 
             if isinstance(value, WirioUndefined):
+                array_values = self._try_get_array_configuration(field_name)
+
+                if len(array_values) > 0:
+                    values[field_name] = array_values
+                    continue
+
                 if not field_info.is_required():
                     values[field_name] = field_info.get_default(
                         call_default_factory=True
@@ -169,4 +173,24 @@ class ConfigurationManager(ConfigurationBuilder):
             else:
                 values[field_name] = value
 
-        return key.model_validate(values)
+        return model_type.model_validate(values)
+
+    def _try_get_array_configuration(self, key: str) -> list[str | None]:
+        index = 0
+        values: list[str | None] = []
+
+        while True:
+            indexed_key = f"{key}:{index}"
+            value = self._try_get_configuration(indexed_key)
+
+            if isinstance(value, WirioUndefined):
+                break
+
+            values.append(value)
+            index += 1
+
+        return values
+
+    def get_section(self, key: str) -> ConfigurationSection:
+        """Get a configuration section for the specified key. A configuration section represents a subsection of the configuration values that share a common key prefix."""
+        return ConfigurationSection(self, key)

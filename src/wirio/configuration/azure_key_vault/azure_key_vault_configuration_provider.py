@@ -7,6 +7,7 @@ from azure.core.pipeline.policies._universal import HTTPRequestType
 from azure.identity.aio import DefaultAzureCredential
 from azure.keyvault.secrets.aio import SecretClient
 
+from wirio.configuration.configuration_path import ConfigurationPath
 from wirio.configuration.configuration_provider import ConfigurationProvider
 
 
@@ -49,7 +50,8 @@ class AzureKeyVaultConfigurationProvider(ConfigurationProvider):
                 secret = await secret_client.get_secret(secret_name)
 
                 if secret.value is not None:
-                    self._data[secret_name] = secret.value
+                    normalized_secret_name = self._normalize_key(secret_name)
+                    self._data[normalized_secret_name] = secret.value
 
         await super().load()
 
@@ -59,3 +61,6 @@ class AzureKeyVaultConfigurationProvider(ConfigurationProvider):
             async for secret in secret_client.list_properties_of_secrets()
             if secret.name is not None and secret.enabled
         ]
+
+    def _normalize_key(self, key: str) -> str:
+        return key.replace("--", ConfigurationPath.KEY_DELIMITER)

@@ -199,7 +199,7 @@ class TestConfigurationManager:
 
         assert "validation error" in str(exception_info.value)
 
-    def test_get_model(self) -> None:
+    def test_get_model_when_event_loop_is_not_running(self) -> None:
         expected_app_name = "wirio"
         expected_port = "8080"
         configuration_manager = ConfigurationManager(content_root_path="")
@@ -361,3 +361,37 @@ class TestConfigurationManager:
 
         assert settings.app_name == expected_app_name
         assert settings.api_url == expected_api_url
+
+    @pytest.mark.parametrize(
+        argnames=("section_key", "expected_path"),
+        argvalues=[
+            ("logging:log_level:default", "logging:log_level:default"),
+            ("logging:log_level", "logging:log_level"),
+            ("logging", "logging"),
+        ],
+    )
+    def test_get_section(self, section_key: str, expected_path: str) -> None:
+        expected_database_host = "localhost"
+        configuration_manager = ConfigurationManager(content_root_path="")
+        configuration_manager.add(
+            _DictionaryConfigurationSource(
+                {"logging:log_level:default": expected_database_host}
+            )
+        )
+
+        section = configuration_manager.get_section(section_key)
+
+        assert section.path == expected_path
+
+    def test_get_none_when_getting_value_of_section_with_subsections_below(
+        self,
+    ) -> None:
+        configuration_manager = ConfigurationManager(content_root_path="")
+        configuration_manager.add(
+            _DictionaryConfigurationSource({"logging:log_level:default": "WARNING"})
+        )
+
+        section = configuration_manager.get_section("logging:log_level")
+        configuration_value = section.get_value()
+
+        assert configuration_value is None
