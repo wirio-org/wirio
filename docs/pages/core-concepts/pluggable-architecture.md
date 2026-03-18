@@ -116,7 +116,7 @@ In short, the `ServiceCollection` model mirrors ASP.NET Core's ergonomics while 
 
 1. **Expose a single public entry point** (for example, `def add_feature(services: ServiceCollection, **options) -> None`).
 2. **Register abstractions, not concrete types.** Use interfaces in shared libraries, so consumers can replace implementations when needed.
-3. **Keep configuration explicit.** Pass options via parameters or small dataclasses instead of global state.
+3. **Keep settings explicit.** Pass options via parameters or small dataclasses instead of global state.
 4. **Document prerequisites.** If `add_sqlmodel` expects a configured `Engine`, accept it as a parameter or register a factory that builds one from provided settings.
 
 ## Putting it together

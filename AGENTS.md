@@ -8,8 +8,58 @@
 # General guidance
 
 - Use American English.
+
+# Code style
+
+## General guidelines
+
 - Use type hints everywhere.
-- Use standard decorators, such as `override`, when appropriate.
+- Use standard decorators, such as `@override` or `@abstractmethod`, when appropriate.
+- Use `@final` for classes that are not meant to be inherited from, and for methods that are not meant to be overridden (if the class is not already marked as final).
+- Don't create standalone functions outside the class for class-specific logic.
+- Don't create aliases.
+- When adding private methods (those starting with an underscore), add them at the end of the class, after all public methods.
+
+## Explicit comparisons in conditionals
+
+- Do **not** rely on Python truthiness in conditionals. Agents mustn't generate `if value:` or `if not value:`, except when checking booleans.
+- Use explicit comparisons that match the intended meaning.
+
+**Examples of allowed uses:**
+
+```python
+if value is None
+if value is not None
+
+if len(items) == 0
+if len(items) > 0
+
+if count == 0
+if count != 0
+if count > 0
+
+# Boolean values
+if flag
+if not flag
+```
+
+**Examples of forbidden uses:**
+
+```python
+if value
+if not value
+while value
+return value or default
+```
+
+**Replacement guide:**
+
+| Case           | Use                 |
+| -------------- | ------------------- |
+| optional value | `value is not None` |
+| collection     | `len(value) > 0`    |
+| number         | `value != 0`        |
+| boolean        | `value`             |
 
 # Testing
 

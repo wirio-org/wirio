@@ -1,5 +1,7 @@
 import sys
-from typing import cast
+from collections.abc import Mapping, Sequence
+from types import UnionType
+from typing import Any, cast
 
 import pytest
 
@@ -286,3 +288,80 @@ class TestTypedType:
         assert isinstance(instance, CustomClassWithGenericAndConstructorParameters)
         assert instance.parameter_1 == expected_parameter_1
         assert instance.parameter_2 == expected_parameter_2
+
+    @pytest.mark.parametrize(
+        argnames=("type_", "is_mapping"),
+        argvalues=[
+            (int, False),
+            (CustomClass, False),
+            (list[int], False),
+            (tuple[int, ...], False),
+            (Mapping[str, int], True),
+            (dict[str, int], True),
+            (CustomClassWithGeneric1[int], False),
+            (Any, False),
+        ],
+    )
+    def test_return_if_type_is_mapping(self, type_: type, is_mapping: bool) -> None:
+        typed_type = TypedType.from_type(type_)
+
+        assert typed_type.is_mapping == is_mapping
+
+    @pytest.mark.parametrize(
+        argnames=("type_", "is_sequence"),
+        argvalues=[
+            (int, False),
+            (CustomClass, False),
+            (list[int], True),
+            (tuple[int, ...], True),
+            (Mapping[str, int], False),
+            (dict[str, int], False),
+            (Sequence[int], True),
+            (CustomClassWithGeneric1[int], False),
+            (Any, False),
+            (str, False),
+            (bytes, False),
+        ],
+    )
+    def test_return_if_type_is_sequence(self, type_: type, is_sequence: bool) -> None:
+        typed_type = TypedType.from_type(type_)
+
+        assert typed_type.is_sequence == is_sequence
+
+    @pytest.mark.parametrize(
+        argnames=("type_", "expected_type"),
+        argvalues=[
+            (int, int),
+            (list[int], list),
+            (CustomClassWithGenerics1[int, str], CustomClassWithGenerics1),
+            (
+                int | str,
+                __import__("typing").Union
+                if sys.version_info >= (3, 14)
+                else UnionType,
+            ),
+        ],
+    )
+    def test_return_origin_type(self, type_: type, expected_type: type) -> None:
+        typed_type = TypedType.from_type(type_)
+
+        result = typed_type.to_type()
+
+        assert result is expected_type
+
+    @pytest.mark.parametrize(
+        argnames=("annotation"),
+        argvalues=[
+            (int),
+            (list[int]),
+            (CustomClassWithGenerics1[int, str]),
+            (int | str),
+        ],
+    )
+    def test_return_annotation(
+        self,
+        annotation: Any,  # noqa: ANN401
+    ) -> None:
+        typed_type = TypedType.from_type(annotation)
+
+        assert typed_type.annotation == annotation

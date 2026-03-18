@@ -1,6 +1,8 @@
 import typing
 from collections.abc import (
     Hashable,
+    Mapping,
+    Sequence,
 )
 from typing import Any, Final, final, override
 
@@ -9,23 +11,25 @@ from typing import Any, Final, final, override
 class TypedType(Hashable):
     """Version of :class:`type` that takes into account generic parameters."""
 
+    _annotation: Final[Any]
     _origin: Final[Any]
     _args: Final[tuple[Any, ...]]
 
     def __init__(
         self,
-        type_: Any,  # noqa: ANN401
+        annotation: Any,  # noqa: ANN401
     ) -> None:
-        origin = typing.get_origin(type_)
+        self._annotation = annotation
+        origin = typing.get_origin(annotation)
         has_generics = origin is not None
 
         if not has_generics:
-            self._origin = type_
+            self._origin = annotation
             self._args = ()
             return
 
         self._origin = origin
-        self._args = typing.get_args(type_)
+        self._args = typing.get_args(annotation)
 
     @classmethod
     def from_type(cls, type_: type) -> "TypedType":
@@ -42,9 +46,34 @@ class TypedType(Hashable):
         return cls(instance_type)
 
     @property
+    def annotation(
+        self,
+    ) -> Any:  # noqa: ANN401
+        """Get the original type annotation from which this `TypedType` was created."""
+        return self._annotation
+
+    @property
+    def args(self) -> tuple[Any, ...]:
+        """Get the generic type arguments for this type."""
+        return self._args
+
+    @property
     def is_generic_type(self) -> bool:
         """Get a value indicating whether the current type is a generic type."""
         return len(self._args) > 0
+
+    @property
+    def is_mapping(self) -> bool:
+        """Get a value indicating whether the current type is a mapping type."""
+        return issubclass(self._origin, Mapping)
+
+    @property
+    def is_sequence(self) -> bool:
+        """Get a value indicating whether the current type is a collection type."""
+        if self._origin in [str, bytes]:
+            return False
+
+        return issubclass(self._origin, Sequence)
 
     def to_type(self) -> type:
         return self._origin

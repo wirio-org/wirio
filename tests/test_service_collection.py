@@ -2383,7 +2383,7 @@ class TestServiceCollection:
 
             assert str(exception_info.value) == expected_error_message
 
-    async def test_access_typed_configuration(self, mocker: MockerFixture) -> None:
+    async def test_access_typed_settings(self, mocker: MockerFixture) -> None:
         class ApplicationSettings(BaseModel):
             test_wirio_field: str
 
@@ -2392,9 +2392,9 @@ class TestServiceCollection:
         mocker.patch.dict(os.environ, {"TEST_WIRIO_FIELD": expected_test_field})
         services = ServiceCollection()
 
-        configuration = services.configuration.get_model(ApplicationSettings)
+        settings = services.settings.get_model(ApplicationSettings)
 
-        assert configuration.test_wirio_field == expected_test_field
+        assert settings.test_wirio_field == expected_test_field
 
     def test_get_current_environment(self, mocker: MockerFixture) -> None:
         expected_environment_name = "current_environment"
@@ -2600,3 +2600,41 @@ class TestServiceCollection:
 
             assert isinstance(host_environment, HostEnvironment)
             assert host_environment is services.environment
+
+    async def test_resolve_settings(self, mocker: MockerFixture) -> None:
+        expected_test_field = "test_value"
+
+        class ApplicationSettings(BaseModel):
+            test_field: str
+
+        mocker.patch.dict(os.environ, {"TEST_FIELD": expected_test_field})
+        services = ServiceCollection()
+        services.add_settings(ApplicationSettings)
+
+        async with services.build_service_provider() as service_provider:
+            application_settings = await service_provider.get_required_service(
+                ApplicationSettings
+            )
+
+            assert isinstance(application_settings, ApplicationSettings)
+            assert application_settings.test_field == "test_value"
+
+    async def test_resolve_settings_with_section_key(
+        self, mocker: MockerFixture
+    ) -> None:
+        expected_test_field = "test_value"
+
+        class ApplicationSettings(BaseModel):
+            test_field: str
+
+        mocker.patch.dict(os.environ, {"SECTION__TEST_FIELD": expected_test_field})
+        services = ServiceCollection()
+        services.add_settings(ApplicationSettings, key="section")
+
+        async with services.build_service_provider() as service_provider:
+            application_settings = await service_provider.get_required_service(
+                ApplicationSettings
+            )
+
+            assert isinstance(application_settings, ApplicationSettings)
+            assert application_settings.test_field == expected_test_field

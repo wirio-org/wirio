@@ -20,7 +20,7 @@
 
 - **Better maintainability**
 
-  Object creation, configuration, and business logic are clearly separated, making the codebase easier to understand and evolve.
+  Object creation, settings, and business logic are clearly separated, making the codebase easier to understand and evolve.
 
 - **Controlled variability**
 

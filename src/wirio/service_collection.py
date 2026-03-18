@@ -5,9 +5,10 @@ from collections.abc import AsyncGenerator, Awaitable, Callable, Generator, Iter
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final, cast, overload
 
+from pydantic import BaseModel
+
 from wirio._service_lookup._typed_type import TypedType
 from wirio._utils._extra_dependencies import ExtraDependencies
-from wirio.configuration.configuration_manager import ConfigurationManager
 from wirio.exceptions import (
     NoKeyedSingletonServiceRegisteredError,
     NoSingletonServiceRegisteredError,
@@ -16,6 +17,7 @@ from wirio.hosting.host_environment import HostEnvironment
 from wirio.service_descriptor import ServiceDescriptor
 from wirio.service_lifetime import ServiceLifetime
 from wirio.service_provider import ServiceProvider
+from wirio.settings.settings_manager import SettingsManager
 from wirio.wirio_undefined import WirioUndefined
 
 if TYPE_CHECKING:
@@ -35,24 +37,24 @@ class ServiceCollection:
     """Collection of service descriptors provided during configuration."""
 
     _descriptors: Final[list[ServiceDescriptor]]
-    _configuration: ConfigurationManager | None
+    _settings: SettingsManager | None
     _host_environment: Final[HostEnvironment]
 
     def __init__(self) -> None:
         self._descriptors = []
-        self._configuration = None
+        self._settings = None
         content_root_path = self._get_content_root_path()
         self._host_environment = HostEnvironment(content_root_path=content_root_path)
         self._validate_on_build = True
         self._populate()
 
     @property
-    def configuration(self) -> ConfigurationManager:
-        """Collection of configuration providers for the application to compose."""
-        if self._configuration is None:
-            self._configuration = self._create_configuration()
+    def settings(self) -> SettingsManager:
+        """Collection of settings providers for the application to compose."""
+        if self._settings is None:
+            self._settings = self._create_settings()
 
-        return self._configuration
+        return self._settings
 
     @property
     def environment(self) -> HostEnvironment:
@@ -1051,6 +1053,14 @@ class ServiceCollection:
         self._ensure_sqlmodel_is_installed()
         SqlmodelIntegration.add_sync_services(self, connection_string)
 
+    def add_settings[TModel: BaseModel](
+        self, model_type: type[TModel], key: str | None = None
+    ) -> None:
+        """Add a settings model as a singleton service."""
+        settings = self.settings if key is None else self.settings.get_section(key)
+        settings_instance = settings.get_model(model_type)
+        self.add_singleton(model_type, settings_instance)
+
     def _add_from_overloaded_constructor[TService](
         self,
         lifetime: ServiceLifetime,
@@ -1299,16 +1309,16 @@ class ServiceCollection:
             SqlmodelIntegration,
         )
 
-    def _create_configuration(self) -> ConfigurationManager:
-        configuration = ConfigurationManager(
+    def _create_settings(self) -> SettingsManager:
+        settings = SettingsManager(
             content_root_path=self._host_environment.content_root_path
         )
-        configuration.add_json_file("appsettings.json", optional=True)
-        configuration.add_json_file(
-            f"appsettings.{self._host_environment.environment_name}.json", optional=True
+        settings.add_json_file("settings.json", optional=True)
+        settings.add_json_file(
+            f"settings.{self._host_environment.environment_name}.json", optional=True
         )
-        configuration.add_environment_variables()
-        return configuration
+        settings.add_environment_variables()
+        return settings
 
     def _get_content_root_path(self) -> str:
         current_frame = inspect.currentframe()

@@ -9,7 +9,7 @@ Setting up SQLModel should take seconds, and be configured with the best practic
 Some of the SQLModel integration benefits:
 
 - Automatic registration of SQLModel services.
-- Recommended configuration by default.
+- Recommended settings by default.
 - No context managers.
 - Consistent and recommended lifetime management out-of-the-box.
 
