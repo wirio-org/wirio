@@ -111,7 +111,7 @@ class SettingsBinder:
             if not isinstance(mapping_value, WirioUndefined):
                 return mapping_value
 
-        raw_value = cls._try_get_setting_value(settings, key)
+        raw_value = cls._try_get_setting_value(settings, key, field_type.annotation)
 
         if isinstance(raw_value, WirioUndefined):
             return None
@@ -169,7 +169,12 @@ class SettingsBinder:
         key_type = field_type.args[0]
         value_type = field_type.args[1]
         values: dict[object, object | None] = {}
-        section = settings.get_section(key)
+
+        try:
+            section = settings.get_section(key)
+        except KeyError:
+            return WirioUndefined.INSTANCE
+
         children = section.get_children()
 
         for child_section in children:
@@ -236,8 +241,14 @@ class SettingsBinder:
         cls,
         settings: "Settings",
         key: str,
+        value_type: type | None = None,
     ) -> object | WirioUndefined:
-        raw_value = settings.get_value(key)
+        raw_value: object | None
+
+        if value_type is None:
+            raw_value = settings.get_value(key)
+        else:
+            raw_value = cast("object | None", settings.get_value(key, value_type))
 
         if raw_value is None:
             return WirioUndefined.INSTANCE

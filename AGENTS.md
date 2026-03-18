@@ -14,7 +14,7 @@
 ## General guidelines
 
 - Use type hints everywhere.
-- Use standard decorators, such as `@override` or `@override`, when appropriate.
+- Use standard decorators, such as `@override` or `@abstractmethod`, when appropriate.
 - Use `@final` for classes that are not meant to be inherited from, and for methods that are not meant to be overridden (if the class is not already marked as final).
 - Don't create standalone functions outside the class for class-specific logic.
 - Don't create aliases.

@@ -2605,9 +2605,9 @@ class TestServiceCollection:
         expected_test_field = "test_value"
 
         class ApplicationSettings(BaseModel):
-            test_field: str = "test_value"
+            test_field: str
 
-        mocker.patch.dict(os.environ, {"SECTION__TEST_FIELD": expected_test_field})
+        mocker.patch.dict(os.environ, {"TEST_FIELD": expected_test_field})
         services = ServiceCollection()
         services.add_settings(ApplicationSettings)
 

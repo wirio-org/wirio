@@ -327,6 +327,17 @@ class TestSettingsBinder:
 
         assert settings.ports is None
 
+    def test_set_dictionary_to_none_section_is_missing(self) -> None:
+        class Settings(BaseModel):
+            ports: dict[str, int] | None = None
+
+        settings_manager = SettingsManager(content_root_path="")
+        settings_manager.add(_DictionarySettingsSource({}))
+
+        settings = settings_manager.get_model(Settings)
+
+        assert settings.ports is None
+
     def test_return_parent_when_child_key_is_empty_when_joining_keys(self) -> None:
         parent_key = "ports"
 
@@ -350,3 +361,14 @@ class TestSettingsBinder:
             ),
         ):
             settings_manager.get_model(Settings)
+
+    def test_get_empty_sequence_when_empty_string_found(self) -> None:
+        class Settings(BaseModel):
+            ports: list[int]
+
+        settings_manager = SettingsManager(content_root_path="")
+        settings_manager.add(_DictionarySettingsSource({"ports": ""}))
+
+        settings = settings_manager.get_model(Settings)
+
+        assert settings.ports == []
