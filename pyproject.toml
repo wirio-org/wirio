@@ -23,10 +23,10 @@ requires-python = ">=3.13"
 dependencies = ["pydantic>=2.12.5"]
 
 [project.urls]
-Homepage = "https://github.com/AndreuCodina/wirio"
-Repository = "https://github.com/AndreuCodina/wirio"
-Documentation = "https://github.com/AndreuCodina/wirio"
-Changelog = "https://github.com/AndreuCodina/wirio/releases"
+Homepage = "https://github.com/wirio-org/wirio"
+Repository = "https://github.com/wirio-org/wirio"
+Documentation = "https://wirio-org.github.io/wirio"
+Changelog = "https://github.com/wirio-org/wirio/releases"
 
 [project.optional-dependencies]
 fastapi = ["fastapi[standard-no-fastapi-cloud-cli]>=0.118.0"]

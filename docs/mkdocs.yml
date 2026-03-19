@@ -1,6 +1,6 @@
 site_name: Wirio
-repo_url: https://github.com/AndreuCodina/wirio
-repo_name: AndreuCodina/wirio
+repo_url: https://github.com/wirio-org/wirio
+repo_name: wirio-org/wirio
 docs_dir: pages
 watch:
   - code

@@ -1,12 +1,12 @@
 <div align="center">
-<img alt="Logo" src="https://raw.githubusercontent.com/AndreuCodina/wirio/refs/heads/main/docs/logo.png" width="450" height="450">
+<img alt="Logo" src="https://raw.githubusercontent.com/wirio-org/wirio/refs/heads/main/docs/logo.png" width="450" height="450">
 
-[![CI](https://img.shields.io/github/actions/workflow/status/AndreuCodina/wirio/main.yaml?branch=main&logo=github&label=CI)](https://github.com/AndreuCodina/wirio/actions/workflows/main.yaml)
-[![Coverage status](https://coveralls.io/repos/github/AndreuCodina/wirio/badge.svg?branch=main)](https://coveralls.io/github/AndreuCodina/wirio?branch=main)
+[![CI](https://img.shields.io/github/actions/workflow/status/wirio-org/wirio/main.yaml?branch=main&logo=github&label=CI)](https://github.com/wirio-org/wirio/actions/workflows/main.yaml)
+[![Coverage status](https://coveralls.io/repos/github/wirio-org/wirio/badge.svg?branch=main)](https://coveralls.io/github/wirio-org/wirio?branch=main)
 [![PyPI - version](https://img.shields.io/pypi/v/wirio?color=blue&label=pypi)](https://pypi.org/project/wirio/)
-[![Python - versions](https://img.shields.io/pypi/pyversions/wirio.svg)](https://github.com/AndreuCodina/wirio)
-[![License](https://img.shields.io/github/license/AndreuCodina/wirio.svg)](https://github.com/AndreuCodina/wirio/blob/main/LICENSE)
-[![Documentation](https://img.shields.io/badge/📚_documentation-3D9970)](https://andreucodina.github.io/wirio)
+[![Python - versions](https://img.shields.io/pypi/pyversions/wirio.svg)](https://github.com/wirio-org/wirio)
+[![License](https://img.shields.io/github/license/wirio-org/wirio.svg)](https://github.com/wirio-org/wirio/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/📚_documentation-3D9970)](https://wirio-org.github.io/wirio)
 
 </div>
 
@@ -244,8 +244,8 @@ class UserService:
         self.sql_session = sql_session
 ```
 
-More information [here](https://andreucodina.github.io/wirio/integrations/sqlmodel).
+More information [here](https://wirio-org.github.io/wirio/integrations/sqlmodel).
 
 ## 📚 Documentation
 
-For more information, [check out the documentation](https://AndreuCodina.github.io/wirio).
+For more information, [check out the documentation](https://wirio-org.github.io/wirio).
