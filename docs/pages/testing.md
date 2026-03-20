@@ -9,8 +9,7 @@ We have to use the service provider to resolve the services we want to test.
     We have to import the services from the `app` singleton of `main.py`, and create a fixture to inject the service provider.
 
     ```python
-    from main import app
-    from wirio.integrations.fastapi import get_service_provider
+    from main import services
 
     @pytest.fixture
     async def service_provider() -> AsyncGenerator[ServiceProvider]:
