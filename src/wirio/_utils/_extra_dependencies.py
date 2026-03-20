@@ -12,6 +12,9 @@ class ExtraDependencies:
     AZURE_KEY_VAULT_NOT_INSTALLED_ERROR_MESSAGE: ClassVar[str] = (
         "'azure-keyvault-secrets', 'azure-identity' or 'aiohttp>=3.13.3' are not installed. Please, run 'uv add wirio[azure-key-vault]' to install the required dependencies"
     )
+    AWS_SECRETS_MANAGER_NOT_INSTALLED_ERROR_MESSAGE: ClassVar[str] = (
+        "'boto3' is not installed. Please, run 'uv add wirio[aws-secrets-manager]' to install the required dependencies"
+    )
 
     @staticmethod
     def is_fastapi_installed() -> bool:
@@ -73,4 +76,22 @@ class ExtraDependencies:
         except ImportError as error:
             raise ImportError(
                 cls.AZURE_KEY_VAULT_NOT_INSTALLED_ERROR_MESSAGE
+            ) from error
+
+    @staticmethod
+    def is_aws_secrets_manager_installed() -> bool:
+        try:
+            import boto3  # pyright: ignore[reportUnusedImport, reportMissingImports, reportMissingTypeStubs] # noqa: F401, PLC0415
+        except ImportError:
+            return False
+
+        return True
+
+    @classmethod
+    def ensure_aws_secrets_manager_is_installed(cls) -> None:
+        try:
+            import boto3  # pyright: ignore[reportUnusedImport, reportMissingImports, reportMissingTypeStubs] # noqa: F401, PLC0415
+        except ImportError as error:
+            raise ImportError(
+                cls.AWS_SECRETS_MANAGER_NOT_INSTALLED_ERROR_MESSAGE
             ) from error

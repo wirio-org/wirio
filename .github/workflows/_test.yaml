@@ -14,7 +14,14 @@ jobs:
       matrix:
         python-version: ["3.13", "3.14"]
         resolution-strategy: ["lowest-direct", "highest"]
-        extra: ["no-extra", "fastapi", "sqlmodel", "azure-key-vault"]
+        extra:
+          [
+            "no-extra",
+            "fastapi",
+            "sqlmodel",
+            "azure-key-vault",
+            "aws-secrets-manager",
+          ]
     env:
       COVERAGE_FILE: .coverage.python--${{ matrix.python-version }}.resolution--${{ matrix.resolution-strategy }}.extra--${{ matrix.extra }}
     steps:

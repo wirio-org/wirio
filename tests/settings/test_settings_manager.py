@@ -15,11 +15,15 @@ from wirio.settings.settings_source import SettingsSource
 if TYPE_CHECKING:
     from azure.core.credentials_async import AsyncTokenCredential
 
+    from wirio.settings.aws_secrets_manager.aws_secrets_manager_settings_source import (
+        AwsSecretsManagerSettingsSource,
+    )
     from wirio.settings.azure_key_vault.azure_key_vault_settings_source import (
         AzureKeyVaultSettingsSource,
     )
 else:
     AsyncTokenCredential = Any
+    AwsSecretsManagerSettingsSource = Any
     AzureKeyVaultSettingsSource = Any
 
 try:
@@ -27,6 +31,13 @@ try:
 
     from wirio.settings.azure_key_vault.azure_key_vault_settings_source import (
         AzureKeyVaultSettingsSource,
+    )
+except ImportError:
+    pass
+
+try:  # noqa: SIM105
+    from wirio.settings.aws_secrets_manager.aws_secrets_manager_settings_source import (
+        AwsSecretsManagerSettingsSource,
     )
 except ImportError:
     pass
@@ -334,6 +345,31 @@ class TestSettingsManager:
         add_patch.assert_called_once()
         source = add_patch.call_args.args[0]
         assert isinstance(source, AzureKeyVaultSettingsSource)
+
+    @pytest.mark.skipif(
+        not ExtraDependencies.is_aws_secrets_manager_installed(),
+        reason=ExtraDependencies.AWS_SECRETS_MANAGER_NOT_INSTALLED_ERROR_MESSAGE,
+    )
+    def test_add_aws_secrets_manager(self, mocker: MockerFixture) -> None:
+        expected_secret_name = "dev/TestApp"  # noqa: S105
+        expected_region = "eu-west-1"
+        expected_url = "https://secretsmanager.eu-west-1.amazonaws.com"
+        settings_manager = SettingsManager(content_root_path="")
+        add_patch = mocker.patch.object(
+            settings_manager,
+            settings_manager.add.__name__,
+            autospec=True,
+        )
+
+        settings_manager.add_aws_secrets_manager(
+            secret_name=expected_secret_name,
+            region=expected_region,
+            url=expected_url,
+        )
+
+        add_patch.assert_called_once()
+        source = add_patch.call_args.args[0]
+        assert isinstance(source, AwsSecretsManagerSettingsSource)
 
     def test_use_default_factory_for_missing_optional_value_of_a_model(self) -> None:
         class Settings(BaseModel):

@@ -23,11 +23,15 @@ from wirio.wirio_undefined import WirioUndefined
 if TYPE_CHECKING:
     from azure.core.credentials_async import AsyncTokenCredential
 
+    from wirio.settings.aws_secrets_manager.aws_secrets_manager_settings_source import (
+        AwsSecretsManagerSettingsSource,
+    )
     from wirio.settings.azure_key_vault.azure_key_vault_settings_source import (
         AzureKeyVaultSettingsSource,
     )
 else:
     AsyncTokenCredential = Any
+    AwsSecretsManagerSettingsSource = Any
     AzureKeyVaultSettingsSource = Any
 
 
@@ -75,6 +79,22 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
         )
 
         self.add(AzureKeyVaultSettingsSource(url=url, credential=credential))
+
+    def add_aws_secrets_manager(
+        self, secret_name: str, region: str | None = None, url: str | None = None
+    ) -> None:
+        """Add a settings provider that reads settings values from AWS Secrets Manager."""
+        ExtraDependencies.ensure_aws_secrets_manager_is_installed()
+        global AwsSecretsManagerSettingsSource  # noqa: PLW0603
+        from wirio.settings.aws_secrets_manager.aws_secrets_manager_settings_source import (  # noqa: PLC0415
+            AwsSecretsManagerSettingsSource,
+        )
+
+        self.add(
+            AwsSecretsManagerSettingsSource(
+                secret_name=secret_name, region=region, url=url
+            )
+        )
 
     def _add_source(self, source: SettingsSource) -> None:
         self._sources.append(source)

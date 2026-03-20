@@ -36,6 +36,7 @@ azure-key-vault = [
     "azure-identity>=1.25.2",
     "azure-keyvault-secrets>=4.10.0",
 ]
+aws-secrets-manager = ["boto3[crt]>=1.42.71"]
 
 [dependency-groups]
 dev = [
@@ -56,11 +57,8 @@ dev = [
 ]
 
 [build-system]
-requires = ["uv_build"]
+requires = ["uv_build>=0.10.7,<0.11.0"]
 build-backend = "uv_build"
-
-[tool.uv]
-required-version = ">=0.10.7,<0.11.0"
 
 [tool.pyright]
 typeCheckingMode = "strict"
