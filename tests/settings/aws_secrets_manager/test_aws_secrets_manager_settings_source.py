@@ -55,7 +55,7 @@ class TestAwsSecretsManagerSettingsSource:
 
         assert provider is settings_provider_mock
         settings_provider_patch.assert_called_once_with(
-            secret_name=expected_secret_name,
+            secret_id=expected_secret_name,
             region=expected_region,
             url=expected_url,
         )
