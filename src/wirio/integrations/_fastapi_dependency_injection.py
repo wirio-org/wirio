@@ -39,7 +39,7 @@ class FastapiDependencyInjection:
         cls, app: FastAPI, services: "ServiceCollection|ServiceContainer"
     ) -> None:
         cls._set_wirio_services(app, services)
-        app.add_middleware(_WirioAsgiMiddleware)  # ty: ignore[invalid-argument-type]
+        app.add_middleware(_WirioAsgiMiddleware)
         cls._update_lifespan(app)
         cls._inject_routes(app.routes)
 
