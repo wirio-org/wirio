@@ -1026,4 +1026,4 @@ class TestSettingsManager:
 
         settings_manager = SettingsManager()
 
-        assert settings_manager._content_root_path == expected_content_root_path  # noqa: SLF001
+        assert settings_manager._content_root_path == expected_content_root_path  # noqa: SLF001 # pyright: ignore[reportPrivateUsage]
