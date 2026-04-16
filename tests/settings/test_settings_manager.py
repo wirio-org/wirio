@@ -1,5 +1,6 @@
 import re
 from collections.abc import Sequence
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, final, override
 
 import pytest
@@ -1019,3 +1020,10 @@ class TestSettingsManager:
             KeyError, match=re.escape("Setting key 'node' is not a section")
         ):
             settings_manager.get_section("node")
+
+    def test_get_current_working_directory_as_default_content_root_path(self) -> None:
+        expected_content_root_path = str(Path.cwd())
+
+        settings_manager = SettingsManager()
+
+        assert settings_manager._content_root_path == expected_content_root_path  # noqa: SLF001

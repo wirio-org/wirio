@@ -37,11 +37,18 @@ else:
 
 @final
 class SettingsManager(SettingsBuilder, SettingsRoot):
+    _content_root_path: Final[str]
     _sources: Final[list[SettingsSource]]
     _providers: Final[list[SettingsProvider]]
 
-    def __init__(self, content_root_path: str) -> None:
-        self._content_root_path = content_root_path
+    def __init__(self, content_root_path: str | None = None) -> None:
+        """Initialize the settings manager.
+
+        Args:
+            content_root_path: An optional path to be used as the root for resolving relative paths in settings sources. If not provided, the current working directory will be used as the content root path.
+
+        """
+        self._content_root_path = self._get_content_root_path(content_root_path)
         self._sources = []
         self._providers = []
 
@@ -221,3 +228,9 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
             return False
 
         return any(not child.key.isdigit() for child in children)
+
+    def _get_content_root_path(self, content_root_path: str | None = None) -> str:
+        if content_root_path is not None:
+            return content_root_path
+
+        return str(Path.cwd().expanduser().resolve())
