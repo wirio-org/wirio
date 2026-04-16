@@ -99,7 +99,9 @@ class TestJsonSettingsProvider:
             encoding="utf-8",
         )
 
-        settings_manager = SettingsManager(content_root_path=str(tmp_path))
+        settings_manager = SettingsManager(
+            content_root_path=str(tmp_path), add_default_providers=False
+        )
         settings_manager.add_json_file(
             path="settings.json",
             optional=False,

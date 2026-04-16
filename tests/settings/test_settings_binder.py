@@ -51,7 +51,7 @@ class TestSettingsBinder:
         class Settings(BaseModel):
             servers: list[Server]
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({"servers:0:name": "api"}))
 
         settings = settings_manager.get_model(Settings)
@@ -62,7 +62,7 @@ class TestSettingsBinder:
 
     def test_get_empty_string(self) -> None:
         key = "ports"
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({key: ""}))
 
         value = settings_manager.get_value(key, str)
@@ -81,7 +81,7 @@ class TestSettingsBinder:
             required_field_2: int
             subsettings: SubSettings | None = None
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({"required_field_1": "value"}))
 
         with pytest.raises(
@@ -115,7 +115,7 @@ class TestSettingsBinder:
             service_1: ServiceSettings | None = None
             service_2: ServiceSettings | None
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({}))
 
         settings = settings_manager.get_model(Settings)
@@ -143,7 +143,7 @@ class TestSettingsBinder:
             ports: list[str]
 
         model_class = IntSettings if field_type is int else StringSettings
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource(settings_values))
 
         settings = settings_manager.get_model(model_class)
@@ -167,7 +167,7 @@ class TestSettingsBinder:
     )
     def test_get_empty_sequence[TField](self, field_type: type[TField]) -> None:
         key = "ports"
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({key: ""}))
 
         value = settings_manager.get_value(key, field_type)
@@ -188,7 +188,7 @@ class TestSettingsBinder:
         class Settings(BaseModel):
             servers: list[Server]
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(
             _DictionarySettingsSource(
                 {
@@ -240,7 +240,7 @@ class TestSettingsBinder:
             ports: dict[str, str]
 
         model_class = IntSettings if field_type is int else StringSettings
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource(settings_values))
 
         settings = settings_manager.get_model(model_class)
@@ -265,7 +265,7 @@ class TestSettingsBinder:
         class Settings(BaseModel):
             services: dict[str, Service]
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(
             _DictionarySettingsSource(
                 {
@@ -294,7 +294,7 @@ class TestSettingsBinder:
             ports: dict[str, int]
 
         expected_ports = {"https": 8443}
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(
             _DictionarySettingsSource(
                 {
@@ -312,7 +312,7 @@ class TestSettingsBinder:
         class Settings(BaseModel):
             ports: dict[str, int] | None = None
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(
             _DictionarySettingsSource(
                 {
@@ -331,7 +331,7 @@ class TestSettingsBinder:
         class Settings(BaseModel):
             ports: dict[str, int] | None = None
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({}))
 
         settings = settings_manager.get_model(Settings)
@@ -351,7 +351,7 @@ class TestSettingsBinder:
         class Settings(BaseModel):
             port: int | str
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({"port": "8080"}))
 
         with pytest.raises(
@@ -366,7 +366,7 @@ class TestSettingsBinder:
         class Settings(BaseModel):
             ports: list[int]
 
-        settings_manager = SettingsManager(content_root_path="")
+        settings_manager = SettingsManager(content_root_path="", add_default_providers=False)
         settings_manager.add(_DictionarySettingsSource({"ports": ""}))
 
         settings = settings_manager.get_model(Settings)

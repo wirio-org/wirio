@@ -23,11 +23,17 @@ class HostEnvironment:
                 If not provided, the content root path will be inferred from the caller file path.
 
         """
-        self._environment_name = self._get_current_environment_name()
+        self._environment_name = self.get_current_environment_name()
         self._content_root_path = (
             content_root_path
             if content_root_path is not None
             else self._get_caller_directory_path()
+        )
+
+    @staticmethod
+    def get_current_environment_name() -> str:
+        return os.getenv(
+            EnvironmentVariable.WIRIO_ENVIRONMENT.value, Environment.LOCAL.value
         )
 
     @property
@@ -59,11 +65,6 @@ class HostEnvironment:
     def is_production(self) -> bool:
         """Check if the current host environment name is `production`."""
         return self.is_environment(Environment.PRODUCTION.value)
-
-    def _get_current_environment_name(self) -> str:
-        return os.getenv(
-            EnvironmentVariable.WIRIO_ENVIRONMENT.value, Environment.LOCAL.value
-        )
 
     def _get_caller_directory_path(self) -> str:
         current_frame = inspect.currentframe()

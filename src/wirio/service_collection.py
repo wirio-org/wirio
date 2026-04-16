@@ -1310,15 +1310,10 @@ class ServiceCollection:
         )
 
     def _create_settings(self) -> SettingsManager:
-        settings = SettingsManager(
-            content_root_path=self._host_environment.content_root_path
+        return SettingsManager(
+            content_root_path=self._host_environment.content_root_path,
+            add_default_providers=True,
         )
-        settings.add_json_file("settings.json", optional=True)
-        settings.add_json_file(
-            f"settings.{self._host_environment.environment_name}.json", optional=True
-        )
-        settings.add_environment_variables()
-        return settings
 
     def _get_content_root_path(self) -> str:
         current_frame = inspect.currentframe()

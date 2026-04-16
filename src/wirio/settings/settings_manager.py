@@ -8,6 +8,7 @@ from pydantic import TypeAdapter
 
 from wirio._service_lookup._typed_type import TypedType
 from wirio._utils._extra_dependencies import ExtraDependencies
+from wirio.hosting import HostEnvironment
 from wirio.settings.environment_variables.environment_variables_settings_source import (
     EnvironmentVariablesSettingsSource,
 )
@@ -41,16 +42,22 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
     _sources: Final[list[SettingsSource]]
     _providers: Final[list[SettingsProvider]]
 
-    def __init__(self, content_root_path: str | None = None) -> None:
+    def __init__(
+        self, content_root_path: str | None = None, add_default_providers: bool = True
+    ) -> None:
         """Initialize the settings manager.
 
         Args:
             content_root_path: An optional path to be used as the root for resolving relative paths in settings sources. If not provided, the current working directory will be used as the content root path.
+            add_default_providers: Whether to add the default settings providers.
 
         """
         self._content_root_path = self._get_content_root_path(content_root_path)
         self._sources = []
         self._providers = []
+
+        if add_default_providers:
+            self.add_defaults()
 
     @property
     def sources(self) -> list[SettingsSource]:
@@ -63,6 +70,16 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
 
     def add(self, source: SettingsSource) -> None:
         self._add_source(source)
+
+    def add_defaults(self) -> Self:
+        """Add default settings providers in the recommended order."""
+        return (
+            self.add_json_file("settings.json", optional=True)
+            .add_json_file(
+                f"settings.{HostEnvironment.environment_name}.json", optional=True
+            )
+            .add_environment_variables()
+        )
 
     def add_environment_variables(self) -> Self:
         """Add a settings provider that reads settings values from environment variables."""
