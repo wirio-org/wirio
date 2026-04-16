@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Coroutine
 from pathlib import Path
 from threading import Thread
-from typing import TYPE_CHECKING, Any, Final, cast, final, override
+from typing import TYPE_CHECKING, Any, Final, Self, cast, final, override
 
 from pydantic import TypeAdapter
 
@@ -57,20 +57,22 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
     def add(self, source: SettingsSource) -> None:
         self._add_source(source)
 
-    def add_environment_variables(self) -> None:
+    def add_environment_variables(self) -> Self:
         """Add a settings provider that reads settings values from environment variables."""
         self.add(EnvironmentVariablesSettingsSource())
+        return self
 
-    def add_json_file(self, path: str, optional: bool) -> None:
+    def add_json_file(self, path: str, optional: bool = False) -> Self:
         """Add a settings provider that reads settings values from a JSON file."""
         final_path = (Path(self._content_root_path) / path).resolve()
         self.add(JsonSettingsSource(path=final_path, optional=optional))
+        return self
 
     def add_azure_key_vault(
         self,
         url: str,
         credential: AsyncTokenCredential | None = None,
-    ) -> None:
+    ) -> Self:
         """Add a settings provider that reads settings values from Azure Key Vault."""
         ExtraDependencies.ensure_azure_key_vault_is_installed()
         global AzureKeyVaultSettingsSource  # noqa: PLW0603
@@ -79,10 +81,11 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
         )
 
         self.add(AzureKeyVaultSettingsSource(url=url, credential=credential))
+        return self
 
     def add_aws_secrets_manager(
         self, secret_id: str, region: str | None = None, url: str | None = None
-    ) -> None:
+    ) -> Self:
         """Add a settings provider that reads settings values from AWS Secrets Manager."""
         ExtraDependencies.ensure_aws_secrets_manager_is_installed()
         global AwsSecretsManagerSettingsSource  # noqa: PLW0603
@@ -93,6 +96,7 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
         self.add(
             AwsSecretsManagerSettingsSource(secret_id=secret_id, region=region, url=url)
         )
+        return self
 
     def _add_source(self, source: SettingsSource) -> None:
         self._sources.append(source)
