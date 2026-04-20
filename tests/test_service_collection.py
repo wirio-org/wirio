@@ -2443,6 +2443,7 @@ class TestServiceCollection:
         expected_content_root_path = str(Path.cwd().resolve())
         mocker.patch(
             f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=None,
         )
 
@@ -2465,6 +2466,7 @@ class TestServiceCollection:
 
         mocker.patch(
             f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
 
@@ -2495,6 +2497,7 @@ class TestServiceCollection:
 
         mocker.patch(
             f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
 
@@ -2519,6 +2522,7 @@ class TestServiceCollection:
 
         mocker.patch(
             f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
         mocker.patch.object(
@@ -2555,6 +2559,7 @@ class TestServiceCollection:
 
         mocker.patch(
             f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
         mocker.patch.object(
@@ -2584,6 +2589,7 @@ class TestServiceCollection:
 
         mocker.patch(
             f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
 

@@ -1,7 +1,7 @@
 import asyncio
 from collections.abc import Coroutine
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from threading import Thread
 from typing import TYPE_CHECKING, Any, Final, Self, cast, final, override
 
 from pydantic import TypeAdapter
@@ -129,17 +129,18 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
         self._call_async(provider.load())
         self._providers.append(provider)
 
-    def _call_async[T](self, coroutine: Coroutine[Any, Any, T]) -> None:
-        def run_coroutine() -> None:
-            asyncio.run(coroutine)
-
+    def _call_async(self, coroutine: Coroutine[Any, Any, None]) -> None:
         try:
             event_loop = asyncio.get_running_loop()
-            event_loop.run_until_complete(coroutine)
         except RuntimeError:
-            thread = Thread(target=run_coroutine)
-            thread.start()
-            thread.join()
+            asyncio.run(coroutine)
+            return
+
+        if event_loop.is_running():
+            self._call_async_in_new_thread(coroutine)
+            return
+
+        event_loop.run_until_complete(coroutine)
 
     @override
     def get_required_value[TField = str](
@@ -252,3 +253,11 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
             return content_root_path
 
         return str(Path.cwd().expanduser().resolve())
+
+    def _call_async_in_new_thread(self, coroutine: Coroutine[Any, Any, None]) -> None:
+        def run_coroutine() -> None:
+            asyncio.run(coroutine)
+
+        with ThreadPoolExecutor(max_workers=1) as thread_pool_executor:
+            future = thread_pool_executor.submit(run_coroutine)
+            future.result()

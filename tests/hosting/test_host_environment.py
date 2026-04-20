@@ -111,6 +111,7 @@ class TestHostEnvironment:
 
         mocker.patch(
             f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
 
@@ -153,6 +154,7 @@ class TestHostEnvironment:
 
         mocker.patch(
             f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
 
@@ -185,6 +187,7 @@ class TestHostEnvironment:
 
         mocker.patch(
             f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=current_frame,
         )
 
@@ -199,6 +202,7 @@ class TestHostEnvironment:
 
         mocker.patch(
             f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
             return_value=None,
         )
 

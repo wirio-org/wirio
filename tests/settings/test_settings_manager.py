@@ -1,5 +1,7 @@
+import asyncio
 import os
 import re
+from asyncio import AbstractEventLoop
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, final, override
@@ -1188,3 +1190,27 @@ class TestSettingsManager:
         json_source = settings_manager.sources[1]
         assert isinstance(json_source, JsonSettingsSource)
         assert json_source._path.name == expected_json_file_name  # noqa: SLF001 # pyright: ignore[reportPrivateUsage]
+
+    def test_use_run_until_complete_when_loop_is_available_and_not_running(
+        self, mocker: MockerFixture
+    ) -> None:
+        event_loop_mock = mocker.create_autospec(AbstractEventLoop, instance=True)
+        event_loop_mock.is_running.return_value = False
+        event_loop_mock.run_until_complete.side_effect = asyncio.run
+
+        mocker.patch(
+            f"{asyncio.__name__}.{asyncio.get_running_loop.__name__}",
+            autospec=True,
+            return_value=event_loop_mock,
+        )
+
+        settings_manager = SettingsManager(
+            content_root_path="", add_default_providers=False
+        )
+
+        async def load_provider() -> None:
+            return
+
+        settings_manager._call_async(load_provider())  # pyright: ignore[reportPrivateUsage]  # noqa: SLF001
+
+        event_loop_mock.run_until_complete.assert_called_once()
