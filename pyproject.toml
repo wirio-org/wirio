@@ -1,6 +1,6 @@
 [project]
 name = "wirio"
-version = "0.21.1"
+version = "0.22.0"
 description = "Powerful Dependency Injection with Python"
 authors = [{ name = "Andreu Codina" }]
 readme = "README.md"
