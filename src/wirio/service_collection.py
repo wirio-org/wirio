@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING, Any, Final, cast, overload
 
 from pydantic import BaseModel
 
+from wirio._content_root_path_resolver import ContentRootPathResolver
 from wirio._service_lookup._typed_type import TypedType
 from wirio._utils._extra_dependencies import ExtraDependencies
-from wirio._utils._python_runtime_path import PythonRuntimePath
 from wirio.exceptions import (
     NoKeyedSingletonServiceRegisteredError,
     NoSingletonServiceRegisteredError,
@@ -1316,59 +1316,8 @@ class ServiceCollection:
         )
 
     def _get_content_root_path(self) -> str:
-        current_frame = inspect.currentframe()
-
-        if current_frame is None:
-            return str(Path.cwd().expanduser().resolve())
-
-        try:
-            current_working_directory = Path.cwd().expanduser().resolve()
-            package_root = Path(__file__).resolve().parent
-            frame_filename = ""
-
-            found_only_runtime_external_frames = False
-            stack_frame = current_frame.f_back
-
-            while stack_frame is not None:
-                notebook_path = stack_frame.f_globals.get("__vsc_ipynb_file__")
-
-                if isinstance(notebook_path, str):
-                    resolved_notebook_path = Path(notebook_path).expanduser().resolve()
-
-                    if resolved_notebook_path.exists():
-                        return str(resolved_notebook_path.parent)
-
-                current_frame_filename = stack_frame.f_code.co_filename
-                current_frame_path = Path(current_frame_filename)
-
-                if not current_frame_path.exists():
-                    stack_frame = stack_frame.f_back
-                    continue
-
-                resolved_current_frame_path = current_frame_path.resolve()
-
-                if package_root not in resolved_current_frame_path.parents:
-                    if PythonRuntimePath.is_python_runtime_path(
-                        resolved_current_frame_path
-                    ):
-                        found_only_runtime_external_frames = True
-                        stack_frame = stack_frame.f_back
-                        continue
-
-                    return str(resolved_current_frame_path.parent)
-
-                frame_filename = current_frame_filename
-                stack_frame = stack_frame.f_back
-
-            if frame_filename == "":
-                return str(current_working_directory)
-
-            if found_only_runtime_external_frames:
-                return str(current_working_directory)
-
-            return str(Path(frame_filename).parent.resolve())
-        finally:
-            del current_frame
+        package_root = Path(__file__).resolve().parent
+        return ContentRootPathResolver(package_root=package_root).resolve_path()
 
     def _populate(self) -> None:
         self.add_singleton(HostEnvironment, self._host_environment)

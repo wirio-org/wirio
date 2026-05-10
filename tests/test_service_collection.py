@@ -26,6 +26,7 @@ from tests.utils.services import (
     ServiceWithSyncContextManagerAndNoDependencies,
     create_test_services,
 )
+from wirio._content_root_path_resolver import ContentRootPathResolver
 from wirio._service_lookup._typed_type import TypedType
 from wirio._utils._python_runtime_path import PythonRuntimePath
 from wirio.abstractions.base_service_provider import BaseServiceProvider
@@ -2442,7 +2443,7 @@ class TestServiceCollection:
     ) -> None:
         expected_content_root_path = str(Path.cwd().resolve())
         mocker.patch(
-            f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=None,
         )
@@ -2465,7 +2466,7 @@ class TestServiceCollection:
         current_frame.f_back = notebook_frame
 
         mocker.patch(
-            f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )
@@ -2496,7 +2497,7 @@ class TestServiceCollection:
         current_frame.f_back = skipped_frame
 
         mocker.patch(
-            f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )
@@ -2521,7 +2522,7 @@ class TestServiceCollection:
         current_frame.f_back = runtime_frame
 
         mocker.patch(
-            f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )
@@ -2558,7 +2559,7 @@ class TestServiceCollection:
         current_frame.f_back = package_frame
 
         mocker.patch(
-            f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )
@@ -2588,7 +2589,7 @@ class TestServiceCollection:
         current_frame.f_back = package_frame
 
         mocker.patch(
-            f"{ServiceCollection.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )

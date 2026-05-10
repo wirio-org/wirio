@@ -5,6 +5,7 @@ from types import CodeType, FrameType
 
 from pytest_mock import MockerFixture
 
+from wirio._content_root_path_resolver import ContentRootPathResolver
 from wirio._utils._python_runtime_path import PythonRuntimePath
 from wirio.hosting._environment_variable import EnvironmentVariable
 from wirio.hosting.environment import Environment
@@ -110,7 +111,7 @@ class TestHostEnvironment:
         current_frame.f_code = code_mock
 
         mocker.patch(
-            f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )
@@ -153,7 +154,7 @@ class TestHostEnvironment:
         current_frame.f_code = current_code_mock
 
         mocker.patch(
-            f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )
@@ -186,7 +187,7 @@ class TestHostEnvironment:
         current_frame.f_code = current_code_mock
 
         mocker.patch(
-            f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=current_frame,
         )
@@ -201,7 +202,7 @@ class TestHostEnvironment:
         expected_current_working_directory = str(Path.cwd().resolve())
 
         mocker.patch(
-            f"{HostEnvironment.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
             autospec=True,
             return_value=None,
         )
@@ -209,3 +210,138 @@ class TestHostEnvironment:
         environment = HostEnvironment()
 
         assert environment.content_root_path == expected_current_working_directory
+
+    def test_return_package_frame_parent_when_only_package_frames_are_found(
+        self, mocker: MockerFixture
+    ) -> None:
+        package_file = Path(HostEnvironment.__init__.__code__.co_filename).resolve()
+        expected_content_root_path = str(package_file.parent.resolve())
+
+        package_code_mock = mocker.create_autospec(CodeType, instance=True)
+        package_code_mock.co_filename = str(package_file)
+
+        package_frame = mocker.create_autospec(FrameType, instance=True)
+        package_frame.f_back = None
+        package_frame.f_globals = {}
+        package_frame.f_code = package_code_mock
+
+        current_code_mock = mocker.create_autospec(CodeType, instance=True)
+        current_code_mock.co_filename = ""
+
+        current_frame = mocker.create_autospec(FrameType, instance=True)
+        current_frame.f_back = package_frame
+        current_frame.f_globals = {}
+        current_frame.f_code = current_code_mock
+
+        mocker.patch(
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
+            return_value=current_frame,
+        )
+
+        environment = HostEnvironment()
+
+        assert environment.content_root_path == expected_content_root_path
+
+    def test_return_nested_package_frame_parent_when_notebook_frame_is_found(
+        self, mocker: MockerFixture, tmp_path: Path
+    ) -> None:
+        package_root = tmp_path / "package"
+        nested_package_directory = package_root / "nested"
+        nested_package_directory.mkdir(parents=True)
+
+        package_file = nested_package_directory / "module.py"
+        package_file.write_text("# module")
+        notebook_file = tmp_path / "notebook.ipynb"
+        notebook_file.write_text("{}")
+
+        expected_content_root_path = str(nested_package_directory.resolve())
+
+        notebook_code_mock = mocker.create_autospec(CodeType, instance=True)
+        notebook_code_mock.co_filename = ""
+
+        notebook_frame = mocker.create_autospec(FrameType, instance=True)
+        notebook_frame.f_back = None
+        notebook_frame.f_globals = {"__vsc_ipynb_file__": str(notebook_file)}
+        notebook_frame.f_code = notebook_code_mock
+
+        package_code_mock = mocker.create_autospec(CodeType, instance=True)
+        package_code_mock.co_filename = str(package_file)
+
+        package_frame = mocker.create_autospec(FrameType, instance=True)
+        package_frame.f_back = notebook_frame
+        package_frame.f_globals = {}
+        package_frame.f_code = package_code_mock
+
+        current_code_mock = mocker.create_autospec(CodeType, instance=True)
+        current_code_mock.co_filename = ""
+
+        current_frame = mocker.create_autospec(FrameType, instance=True)
+        current_frame.f_back = package_frame
+        current_frame.f_globals = {}
+        current_frame.f_code = current_code_mock
+
+        mocker.patch(
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
+            return_value=current_frame,
+        )
+
+        resolver = ContentRootPathResolver(package_root=package_root)
+
+        assert resolver.resolve_path() == expected_content_root_path
+
+    def test_return_nested_package_frame_parent_when_external_frame_is_found(
+        self, mocker: MockerFixture, tmp_path: Path
+    ) -> None:
+        package_root = tmp_path / "package"
+        nested_package_directory = package_root / "nested"
+        nested_package_directory.mkdir(parents=True)
+
+        package_file = nested_package_directory / "module.py"
+        package_file.write_text("# module")
+
+        external_file = tmp_path / "external.py"
+        external_file.write_text("# external")
+
+        expected_content_root_path = str(nested_package_directory.resolve())
+
+        external_code_mock = mocker.create_autospec(CodeType, instance=True)
+        external_code_mock.co_filename = str(external_file)
+
+        external_frame = mocker.create_autospec(FrameType, instance=True)
+        external_frame.f_back = None
+        external_frame.f_globals = {}
+        external_frame.f_code = external_code_mock
+
+        package_code_mock = mocker.create_autospec(CodeType, instance=True)
+        package_code_mock.co_filename = str(package_file)
+
+        package_frame = mocker.create_autospec(FrameType, instance=True)
+        package_frame.f_back = external_frame
+        package_frame.f_globals = {}
+        package_frame.f_code = package_code_mock
+
+        current_code_mock = mocker.create_autospec(CodeType, instance=True)
+        current_code_mock.co_filename = ""
+
+        current_frame = mocker.create_autospec(FrameType, instance=True)
+        current_frame.f_back = package_frame
+        current_frame.f_globals = {}
+        current_frame.f_code = current_code_mock
+
+        mocker.patch(
+            f"{ContentRootPathResolver.__module__}.{inspect.__name__}.{inspect.currentframe.__name__}",
+            autospec=True,
+            return_value=current_frame,
+        )
+        mocker.patch.object(
+            PythonRuntimePath,
+            PythonRuntimePath.is_python_runtime_path.__name__,
+            autospec=True,
+            return_value=False,
+        )
+
+        resolver = ContentRootPathResolver(package_root=package_root)
+
+        assert resolver.resolve_path() == expected_content_root_path

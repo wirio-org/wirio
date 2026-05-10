@@ -10,7 +10,7 @@ class ExtraDependencies:
         "'sqlmodel' or 'greenlet' are not installed. Please, run 'uv add wirio[sqlmodel]' to install the required dependencies"
     )
     AZURE_KEY_VAULT_NOT_INSTALLED_ERROR_MESSAGE: ClassVar[str] = (
-        "'azure-keyvault-secrets', 'azure-identity' or 'aiohttp>=3.13.3' are not installed. Please, run 'uv add wirio[azure-key-vault]' to install the required dependencies"
+        "'azure-keyvault-secrets', 'azure-identity' or 'aiohttp' are not installed. Please, run 'uv add wirio[azure-key-vault]' to install the required dependencies"
     )
     AWS_SECRETS_MANAGER_NOT_INSTALLED_ERROR_MESSAGE: ClassVar[str] = (
         "'boto3' is not installed. Please, run 'uv add wirio[aws-secrets-manager]' to install the required dependencies"

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Final, Self, cast, final, override
 
 from pydantic import TypeAdapter
 
+from wirio._content_root_path_resolver import ContentRootPathResolver
 from wirio._service_lookup._typed_type import TypedType
 from wirio._utils._extra_dependencies import ExtraDependencies
 from wirio.hosting import HostEnvironment
@@ -48,11 +49,16 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
         """Initialize the settings manager.
 
         Args:
-            content_root_path: An optional path to be used as the root for resolving relative paths in settings sources. If not provided, the current working directory will be used as the content root path.
+            content_root_path: Absolute path to the directory that contains the application content files.
+                If not provided, the content root path will be inferred from where `SettingsManager` is being instantiated, or from the current working directory if it can't be calculated.
             add_default_providers: Whether to add the default settings providers.
 
         """
-        self._content_root_path = self._get_content_root_path(content_root_path)
+        self._content_root_path = (
+            content_root_path
+            if content_root_path is not None
+            else self._get_content_root_path()
+        )
         self._sources = []
         self._providers = []
 
@@ -248,11 +254,9 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
 
         return any(not child.key.isdigit() for child in children)
 
-    def _get_content_root_path(self, content_root_path: str | None = None) -> str:
-        if content_root_path is not None:
-            return content_root_path
-
-        return str(Path.cwd().expanduser().resolve())
+    def _get_content_root_path(self) -> str:
+        package_root = Path(__file__).resolve().parent
+        return ContentRootPathResolver(package_root=package_root).resolve_path()
 
     def _call_async_in_new_thread(self, coroutine: Coroutine[Any, Any, None]) -> None:
         def run_coroutine() -> None:

@@ -1128,7 +1128,7 @@ class TestSettingsManager:
             settings_manager.get_section("node")
 
     def test_get_current_working_directory_as_default_content_root_path(self) -> None:
-        expected_content_root_path = str(Path.cwd())
+        expected_content_root_path = str(Path.cwd() / "tests" / "settings")
 
         settings_manager = SettingsManager(add_default_providers=False)
 
