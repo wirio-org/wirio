@@ -41,19 +41,19 @@ aws-secrets-manager = ["boto3[crt]>=1.42.71"]
 [dependency-groups]
 dev = [
     "asyncpg>=0.31.0",
-    "coverage>=7.13.5",
+    "coverage>=7.14.1",
     "jupyter>=1.1.1",
     "mkdocs-material>=9.7.6",
     "mkdocstrings-python>=2.0.3",
     "psycopg2-binary>=2.9.12",
-    "pyright[nodejs]>=1.1.409",
+    "pyright[nodejs]>=1.1.410",
     "pytest>=9.0.3",
-    "pytest-asyncio>=1.3.0",
+    "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
-    "ruff>=0.15.12",
+    "ruff>=0.15.16",
     "testcontainers[postgres]>=4.14.2",
-    "ty>=0.0.34",
+    "ty>=0.0.44",
 ]
 
 [build-system]
