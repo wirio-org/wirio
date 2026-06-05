@@ -68,9 +68,9 @@ class TestFastapiDependencyInjection:
             yield test_client
 
     def test_inject_service(self, test_client: TestClient) -> None:
-        response = test_client.get("/service-with-no-dependencies")
+        response = test_client.get("/service-with-no-dependencies")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-        assert response.status_code == HTTPStatus.OK
+        assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_not_interfere_with_sync_endpoints(self) -> None:
         expected_name = "test-name"
@@ -89,10 +89,10 @@ class TestFastapiDependencyInjection:
         services.configure_fastapi(app)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/sync-endpoint")
+            response = test_client.get("/sync-endpoint")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
-            assert response.json() == expected_name
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
+            assert response.json() == expected_name  # pyright: ignore[reportUnknownMemberType]
 
     def test_not_do_anything_when_route_is_not_matched(self) -> None:
         app = FastAPI()
@@ -100,9 +100,9 @@ class TestFastapiDependencyInjection:
         services.configure_fastapi(app)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/not-matched-endpoint")
+            response = test_client.get("/not-matched-endpoint")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.NOT_FOUND
+            assert response.status_code == HTTPStatus.NOT_FOUND  # pyright: ignore[reportUnknownMemberType]
 
     def test_not_interfere_with_non_annotated_parameters(self) -> None:
         expected_test_value = "test-value"
@@ -120,12 +120,12 @@ class TestFastapiDependencyInjection:
         services.configure_fastapi(app)
 
         with TestClient(app) as test_client:
-            response = test_client.get(
+            response = test_client.get(  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
                 "/non-annotated-parameter",
                 params={"some_parameter": expected_test_value},
             )
 
-            assert response.status_code == HTTPStatus.OK
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_not_interfere_with_fastapi_depends(self) -> None:
         expected_test_value = "test-value"
@@ -146,9 +146,9 @@ class TestFastapiDependencyInjection:
         services.configure_fastapi(app)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/fastapi-depends")
+            response = test_client.get("/fastapi-depends")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_return_service_when_optional_dependency_is_registered(self) -> None:
         app = FastAPI()
@@ -166,9 +166,9 @@ class TestFastapiDependencyInjection:
         services.add_transient(ServiceWithNoDependencies)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/optional-dependency")
+            response = test_client.get("/optional-dependency")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_return_service_when_optional_dependency_is_not_registered(self) -> None:
         app = FastAPI()
@@ -185,9 +185,9 @@ class TestFastapiDependencyInjection:
         services.configure_fastapi(app)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/optional-dependency")
+            response = test_client.get("/optional-dependency")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_fail_when_non_optional_dependency_is_missing(self) -> None:
         app = FastAPI()
@@ -205,7 +205,7 @@ class TestFastapiDependencyInjection:
 
         with TestClient(app) as test_client:  # noqa: SIM117
             with pytest.raises(CannotResolveServiceFromEndpointError):
-                test_client.get("/non-optional-dependency")
+                test_client.get("/non-optional-dependency")  # pyright: ignore[reportUnknownMemberType]
 
     def test_combine_request_types_fastapi_depends_and_wirio_injection(
         self,
@@ -235,11 +235,11 @@ class TestFastapiDependencyInjection:
         services.add_singleton(str, expected_wirio_injection)
 
         with TestClient(app) as test_client:
-            response = test_client.get(
+            response = test_client.get(  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
                 "/endpoint", params={"request_parameter": expected_request_parameter}
             )
 
-            assert response.status_code == HTTPStatus.OK
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_resolve_keyed_service(self) -> None:
         service_key = "key"
@@ -260,9 +260,9 @@ class TestFastapiDependencyInjection:
         services.add_keyed_transient(service_key, ServiceWithNoDependencies)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/endpoint")
+            response = test_client.get("/endpoint")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_get_service_container(self) -> None:
         @asynccontextmanager
@@ -339,9 +339,9 @@ class TestFastapiDependencyInjection:
         services.add_transient(ServiceWithNoDependencies)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/endpoint")
+            response = test_client.get("/endpoint")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
 
     def test_return_content_root_path_from_host_environment_with_services_defined_in_current_file(
         self,
@@ -359,10 +359,10 @@ class TestFastapiDependencyInjection:
         services.configure_fastapi(app)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/endpoint")
+            response = test_client.get("/endpoint")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
-            content_root_path = response.json()
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
+            content_root_path = response.json()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
             assert content_root_path == expected_content_root_path
 
     def test_return_content_root_path_from_host_environment_with_services_defined_in_another_file(
@@ -381,8 +381,8 @@ class TestFastapiDependencyInjection:
         services.configure_fastapi(app)
 
         with TestClient(app) as test_client:
-            response = test_client.get("/endpoint")
+            response = test_client.get("/endpoint")  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
 
-            assert response.status_code == HTTPStatus.OK
-            content_root_path = response.json()
+            assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
+            content_root_path = response.json()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
             assert content_root_path == expected_content_root_path
