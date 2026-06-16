@@ -31,8 +31,14 @@ else:
 
 try:
     from fastapi import APIRouter, Depends, FastAPI
+    from fastapi.routing import (
+        _EffectiveRouteContext,  # pyright: ignore[reportPrivateUsage]
+    )
     from fastapi.testclient import TestClient
 
+    from wirio.integrations._fastapi_dependency_injection import (
+        _extract_routes,  # pyright: ignore[reportPrivateUsage]
+    )
     from wirio.integrations.fastapi import get_service_container, get_service_provider
 except ImportError:
     pass
@@ -386,3 +392,25 @@ class TestFastapiDependencyInjection:
             assert response.status_code == HTTPStatus.OK  # pyright: ignore[reportUnknownMemberType]
             content_root_path = response.json()  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
             assert content_root_path == expected_content_root_path
+
+    def test_extract_routes_return_starlette_route_from_effective_route_context(
+        self,
+    ) -> None:
+        app = FastAPI()
+
+        @app.get("/endpoint")
+        async def endpoint() -> None:  # pyright: ignore[reportUnusedFunction]
+            pass
+
+        endpoint_route = next(
+            route for route in app.routes if getattr(route, "path", None) == "/endpoint"
+        )
+        effective_route_context = _EffectiveRouteContext(  # pyright: ignore[reportPossiblyUnboundVariable]
+            original_route=endpoint_route,
+            starlette_route=endpoint_route,
+        )
+
+        extracted_routes = list(_extract_routes([effective_route_context]))  # pyright: ignore[reportPossiblyUnboundVariable]
+
+        assert len(extracted_routes) == 1
+        assert extracted_routes[0] is endpoint_route
