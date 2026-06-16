@@ -1,13 +1,18 @@
 import functools
 import inspect
-from collections.abc import AsyncGenerator, Callable
+from collections.abc import AsyncGenerator, Callable, Iterable
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from inspect import Parameter
 from typing import TYPE_CHECKING, Any, final
 
 from fastapi import FastAPI
-from fastapi.routing import APIRoute
+from fastapi.routing import (
+    APIRoute,
+    APIWebSocketRoute,
+    _EffectiveRouteContext,  # pyright: ignore[reportPrivateUsage]
+    _IncludedRouter,  # pyright: ignore[reportPrivateUsage]
+)
 from starlette.requests import Request
 from starlette.routing import BaseRoute, Match
 from starlette.types import ASGIApp, Receive, Scope, Send
@@ -30,6 +35,31 @@ if TYPE_CHECKING:
 _current_request: ContextVar[Request | WebSocket] = ContextVar(
     "wirio_starlette_request"
 )
+
+
+def _extract_routes(routes: list[Any]) -> Iterable[Any]:
+    for route in routes:
+        if isinstance(route, (APIRoute, APIWebSocketRoute)):
+            yield route
+        elif isinstance(route, _IncludedRouter):
+            yield from _extract_routes(route.effective_candidates())
+        elif isinstance(route, _EffectiveRouteContext) and route.dependant is not None:
+            yield route
+        elif isinstance(route, _EffectiveRouteContext) and isinstance(
+            route.starlette_route, (APIRoute, APIWebSocketRoute)
+        ):
+            yield route.starlette_route
+
+
+def _get_original_route(
+    route: Any,  # noqa: ANN401
+) -> APIRoute | APIWebSocketRoute | Any:  # noqa: ANN401
+    original_route = getattr(route, "original_route", None)
+
+    if isinstance(original_route, (APIRoute, APIWebSocketRoute)):
+        return original_route
+
+    return route
 
 
 @final
@@ -79,13 +109,15 @@ class FastapiDependencyInjection:
 
     @classmethod
     def _inject_routes(cls, routes: list[BaseRoute]) -> None:
-        for route in routes:
+        for route in _extract_routes(routes):
+            original_route = _get_original_route(route)
+
             if not (
-                isinstance(route, APIRoute)
-                and route.dependant.call is not None
-                and inspect.iscoroutinefunction(route.dependant.call)
+                isinstance(original_route, (APIRoute, APIWebSocketRoute))  # pyright: ignore[reportUnnecessaryIsInstance]
+                and original_route.dependant.call is not None
+                and inspect.iscoroutinefunction(original_route.dependant.call)
                 and cls._are_annotated_parameters_with_wirio_dependencies(
-                    route.dependant.call
+                    original_route.dependant.call
                 )
             ):
                 continue
@@ -197,10 +229,12 @@ class _WirioAsgiMiddleware:
             is_endpoint_matched = False
             is_async_endpoint = False
 
-            for route in scope["app"].routes:
+            for route in _extract_routes(scope["app"].routes):
+                original_route = _get_original_route(route)
+
                 if (
-                    isinstance(route, APIRoute)
-                    and route.matches(scope)[0] == Match.FULL
+                    isinstance(original_route, (APIRoute, APIWebSocketRoute))  # pyright: ignore[reportUnnecessaryIsInstance]
+                    and original_route.matches(scope)[0] == Match.FULL
                 ):
                     is_endpoint_matched = True
                     original = inspect.unwrap(route.dependant.call)  # pyright: ignore[reportArgumentType]
