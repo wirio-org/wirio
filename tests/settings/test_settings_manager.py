@@ -18,12 +18,12 @@ from wirio.settings.environment_variables.environment_variables_settings_provide
 from wirio.settings.environment_variables.environment_variables_settings_source import (
     EnvironmentVariablesSettingsSource,
 )
-from wirio.settings.json.json_settings_provider import JsonSettingsProvider
-from wirio.settings.json.json_settings_source import JsonSettingsSource
 from wirio.settings.settings_builder import SettingsBuilder
 from wirio.settings.settings_manager import SettingsManager
 from wirio.settings.settings_provider import SettingsProvider
 from wirio.settings.settings_source import SettingsSource
+from wirio.settings.yaml.yaml_settings_provider import YamlSettingsProvider
+from wirio.settings.yaml.yaml_settings_source import YamlSettingsSource
 
 if TYPE_CHECKING:
     from azure.core.credentials_async import AsyncTokenCredential
@@ -1137,7 +1137,7 @@ class TestSettingsManager:
     def test_add_default_providers_by_default(self, mocker: MockerFixture) -> None:
         add_defaults_patch = mocker.patch.object(
             SettingsManager,
-            SettingsManager.add_defaults.__name__,
+            SettingsManager.add_default_providers.__name__,
             autospec=True,
         )
 
@@ -1150,7 +1150,7 @@ class TestSettingsManager:
     ) -> None:
         add_defaults_patch = mocker.patch.object(
             SettingsManager,
-            SettingsManager.add_defaults.__name__,
+            SettingsManager.add_default_providers.__name__,
             autospec=True,
         )
 
@@ -1162,7 +1162,7 @@ class TestSettingsManager:
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         expected_environment_name = "development"
-        expected_json_file_name = f"settings.{expected_environment_name}.json"
+        expected_yaml_file_name = f"settings.{expected_environment_name}.yaml"
         expected_sources_count = 3
         expected_providers_count = 3
 
@@ -1175,10 +1175,10 @@ class TestSettingsManager:
 
         assert len(settings_manager.sources) == expected_sources_count
         assert len(settings_manager.providers) == expected_providers_count
-        assert isinstance(settings_manager.sources[0], JsonSettingsSource)
-        assert isinstance(settings_manager.providers[0], JsonSettingsProvider)
-        assert isinstance(settings_manager.sources[1], JsonSettingsSource)
-        assert isinstance(settings_manager.providers[1], JsonSettingsProvider)
+        assert isinstance(settings_manager.sources[0], YamlSettingsSource)
+        assert isinstance(settings_manager.providers[0], YamlSettingsProvider)
+        assert isinstance(settings_manager.sources[1], YamlSettingsSource)
+        assert isinstance(settings_manager.providers[1], YamlSettingsProvider)
         assert isinstance(
             settings_manager.sources[2], EnvironmentVariablesSettingsSource
         )
@@ -1187,9 +1187,9 @@ class TestSettingsManager:
             EnvironmentVariablesSettingsProvider,
         )
 
-        json_source = settings_manager.sources[1]
-        assert isinstance(json_source, JsonSettingsSource)
-        assert json_source._path.name == expected_json_file_name  # noqa: SLF001 # pyright: ignore[reportPrivateUsage]
+        yaml_source = settings_manager.sources[1]
+        assert isinstance(yaml_source, YamlSettingsSource)
+        assert yaml_source._path.name == expected_yaml_file_name  # noqa: SLF001 # pyright: ignore[reportPrivateUsage]
 
     def test_use_run_until_complete_when_loop_is_available_and_not_running(
         self, mocker: MockerFixture

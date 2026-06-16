@@ -1,15 +1,14 @@
-import json
 from pathlib import Path
 from typing import Any, Final, cast, final, override
 
-from wirio.settings.json.json_settings_file_parser import (
-    JsonSettingsFileParser,
-)
+import yaml
+
+from wirio.settings._json._json_settings_file_parser import JsonSettingsFileParser
 from wirio.settings.settings_provider import SettingsProvider
 
 
 @final
-class JsonSettingsProvider(SettingsProvider):
+class YamlSettingsProvider(SettingsProvider):
     _path: Final[Path]
     _optional: Final[bool]
 
@@ -29,16 +28,19 @@ class JsonSettingsProvider(SettingsProvider):
             error_message = f"Setting file '{self._path}' was not found"
             raise FileNotFoundError(error_message)
 
-        json_data: Any = {}
+        yaml_data: Any = {}
 
         with self._path.open(encoding="utf-8") as file:
-            json_data = json.load(file)
+            yaml_data = yaml.safe_load(file)
 
-        if not isinstance(json_data, dict):
-            error_message = "Could not parse the JSON file"
+        if yaml_data is None:
+            yaml_data = {}
+
+        if not isinstance(yaml_data, dict):
+            error_message = "Could not parse the YAML file"
             raise RuntimeError(error_message)  # noqa: TRY004
 
         self._data = JsonSettingsFileParser().parse_json(
-            cast("dict[str, Any]", json_data)
+            cast("dict[str, Any]", yaml_data)
         )
         await super().load()

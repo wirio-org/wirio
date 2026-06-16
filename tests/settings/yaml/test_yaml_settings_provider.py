@@ -1,25 +1,28 @@
-import json
 import re
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
+import yaml
 from pydantic import BaseModel
 
-from wirio.settings.json.json_settings_provider import (
-    JsonSettingsProvider,
-)
 from wirio.settings.settings_manager import SettingsManager
+from wirio.settings.yaml.yaml_settings_provider import YamlSettingsProvider
 
 
-class TestJsonSettingsProvider:
-    async def test_load_values_from_json_file(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "settings.json"
+class TestYamlSettingsProvider:
+    async def test_load_values_from_yaml_file(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "settings.yaml"
         file_path.write_text(
-            '{"appName": "wirio", "port": 8080, "enabled": true, "notes": null}',
+            """
+appName: wirio
+port: 8080
+enabled: true
+notes: null
+""".strip(),
             encoding="utf-8",
         )
-        provider = JsonSettingsProvider(path=file_path, optional=False)
+        provider = YamlSettingsProvider(path=file_path, optional=False)
 
         await provider.load()
 
@@ -33,19 +36,16 @@ class TestJsonSettingsProvider:
     async def test_return_empty_data_when_optional_file_is_missing(
         self, tmp_path: Path
     ) -> None:
-        file_path = tmp_path / "missing.json"
-        provider = JsonSettingsProvider(
-            path=file_path,
-            optional=True,
-        )
+        file_path = tmp_path / "missing.yaml"
+        provider = YamlSettingsProvider(path=file_path, optional=True)
 
         await provider.load()
 
         assert provider.data == {}
 
     async def test_fail_when_required_file_is_missing(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "missing.json"
-        provider = JsonSettingsProvider(path=file_path, optional=False)
+        file_path = tmp_path / "missing.yaml"
+        provider = YamlSettingsProvider(path=file_path, optional=False)
 
         with pytest.raises(
             FileNotFoundError,
@@ -53,24 +53,24 @@ class TestJsonSettingsProvider:
         ):
             await provider.load()
 
-    async def test_fail_when_json_file_has_invalid_syntax(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "settings.json"
-        file_path.write_text('{"appName": "wirio"', encoding="utf-8")
-        provider = JsonSettingsProvider(path=file_path, optional=False)
+    async def test_fail_when_yaml_file_has_invalid_syntax(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "settings.yaml"
+        file_path.write_text("appName: [wirio", encoding="utf-8")
+        provider = YamlSettingsProvider(path=file_path, optional=False)
 
-        with pytest.raises(json.JSONDecodeError):
+        with pytest.raises(yaml.YAMLError):
             await provider.load()
 
-    async def test_fail_when_json_root_value_is_not_object(
+    async def test_fail_when_yaml_root_value_is_not_object(
         self, tmp_path: Path
     ) -> None:
-        file_path = tmp_path / "settings.json"
-        file_path.write_text('["wirio", "config"]', encoding="utf-8")
-        provider = JsonSettingsProvider(path=file_path, optional=False)
+        file_path = tmp_path / "settings.yaml"
+        file_path.write_text("- wirio\n- config", encoding="utf-8")
+        provider = YamlSettingsProvider(path=file_path, optional=False)
 
         with pytest.raises(
             RuntimeError,
-            match=re.escape("Could not parse the JSON file"),
+            match=re.escape("Could not parse the YAML file"),
         ):
             await provider.load()
 
@@ -80,6 +80,7 @@ class TestJsonSettingsProvider:
             port: int
             enabled: bool
             notes: str | None
+            notes_2: str | None
             price_as_float: float
             price_as_decimal: Decimal
             int_list: list[int]
@@ -93,17 +94,33 @@ class TestJsonSettingsProvider:
         expected_price_as_decimal = Decimal("19.99")
         expected_int_list = [1, 2, 3]
         expected_string_list = ["a", "b", "c"]
-        file_path = tmp_path / "settings.json"
+        file_path = tmp_path / "settings.yaml"
         file_path.write_text(
-            '{"appName": "wirio", "port": 8080, "enabled": true, "notes": null, "priceAsFloat": 19.99, "priceAsDecimal": 19.99, "intList": [1, 2, 3], "stringList": ["a", "b", "c"]}',
+            """
+appName: wirio
+port: 8080
+enabled: true
+notes: null
+notes_2:
+priceAsFloat: 19.99
+priceAsDecimal: 19.99
+intList:
+  - 1
+  - 2
+  - 3
+stringList:
+  - a
+  - b
+  - c
+""".strip(),
             encoding="utf-8",
         )
 
         settings_manager = SettingsManager(
             content_root_path=str(tmp_path), add_default_providers=False
         )
-        settings_manager.add_json_file(
-            path="settings.json",
+        settings_manager.add_yaml_file(
+            path="settings.yaml",
             optional=False,
         )
 
@@ -117,3 +134,14 @@ class TestJsonSettingsProvider:
         assert model.price_as_decimal == expected_price_as_decimal
         assert model.int_list == expected_int_list
         assert model.string_list == expected_string_list
+
+    async def test_return_empty_data_when_yaml_file_is_empty(
+        self, tmp_path: Path
+    ) -> None:
+        file_path = tmp_path / "settings.yaml"
+        file_path.write_text("", encoding="utf-8")
+        provider = YamlSettingsProvider(path=file_path, optional=False)
+
+        await provider.load()
+
+        assert provider.data == {}
