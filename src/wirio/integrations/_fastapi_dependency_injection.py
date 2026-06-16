@@ -53,7 +53,7 @@ def _extract_routes(routes: list[Any]) -> Iterable[Any]:
 
 def _get_original_route(
     route: Any,  # noqa: ANN401
-) -> APIRoute | APIWebSocketRoute:
+) -> APIRoute | APIWebSocketRoute | Any:  # noqa: ANN401
     original_route = getattr(route, "original_route", None)
 
     if isinstance(original_route, (APIRoute, APIWebSocketRoute)):
@@ -234,7 +234,7 @@ class _WirioAsgiMiddleware:
 
                 if (
                     isinstance(original_route, (APIRoute, APIWebSocketRoute))  # pyright: ignore[reportUnnecessaryIsInstance]
-                    and route.matches(scope)[0] == Match.FULL
+                    and original_route.matches(scope)[0] == Match.FULL
                 ):
                     is_endpoint_matched = True
                     original = inspect.unwrap(route.dependant.call)  # pyright: ignore[reportArgumentType]
