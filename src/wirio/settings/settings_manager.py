@@ -13,13 +13,13 @@ from wirio.hosting import HostEnvironment
 from wirio.settings.environment_variables.environment_variables_settings_source import (
     EnvironmentVariablesSettingsSource,
 )
-from wirio.settings.json.json_settings_source import JsonSettingsSource
 from wirio.settings.settings_builder import SettingsBuilder
 from wirio.settings.settings_path import SettingsPath
 from wirio.settings.settings_provider import SettingsProvider
 from wirio.settings.settings_root import SettingsRoot
 from wirio.settings.settings_section import SettingsSection
 from wirio.settings.settings_source import SettingsSource
+from wirio.settings.yaml.yaml_settings_source import YamlSettingsSource
 from wirio.wirio_undefined import WirioUndefined
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
         self._providers = []
 
         if add_default_providers:
-            self.add_defaults()
+            self.add_default_providers()
 
     @property
     def sources(self) -> list[SettingsSource]:
@@ -77,12 +77,12 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
     def add(self, source: SettingsSource) -> None:
         self._add_source(source)
 
-    def add_defaults(self) -> Self:
+    def add_default_providers(self) -> Self:
         """Add default settings providers in the recommended order."""
         return (
-            self.add_json_file("settings.json", optional=True)
-            .add_json_file(
-                f"settings.{HostEnvironment.get_current_environment_name()}.json",
+            self.add_yaml_file("settings.yaml", optional=True)
+            .add_yaml_file(
+                f"settings.{HostEnvironment.get_current_environment_name()}.yaml",
                 optional=True,
             )
             .add_environment_variables()
@@ -93,10 +93,10 @@ class SettingsManager(SettingsBuilder, SettingsRoot):
         self.add(EnvironmentVariablesSettingsSource())
         return self
 
-    def add_json_file(self, path: str, optional: bool = False) -> Self:
-        """Add a settings provider that reads settings values from a JSON file."""
+    def add_yaml_file(self, path: str, optional: bool = False) -> Self:
+        """Add a settings provider that reads settings values from a YAML file."""
         final_path = (Path(self._content_root_path) / path).resolve()
-        self.add(JsonSettingsSource(path=final_path, optional=optional))
+        self.add(YamlSettingsSource(path=final_path, optional=optional))
         return self
 
     def add_azure_key_vault(

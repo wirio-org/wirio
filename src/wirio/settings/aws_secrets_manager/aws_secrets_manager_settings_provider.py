@@ -3,7 +3,7 @@ from typing import Any, Final, cast, final, override
 
 import boto3  # pyright: ignore[reportMissingImports, reportMissingTypeStubs]
 
-from wirio.settings.json.json_settings_file_parser import JsonSettingsFileParser
+from wirio.settings._json._json_settings_file_parser import JsonSettingsFileParser
 from wirio.settings.settings_provider import SettingsProvider
 
 

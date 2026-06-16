@@ -3264,6 +3264,7 @@ version = "0.22.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
+    { name = "pyyaml" },
 ]
 
 [package.optional-dependencies]
@@ -3310,6 +3311,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard-no-fastapi-cloud-cli"], marker = "extra == 'fastapi'", specifier = ">=0.137.1" },
     { name = "greenlet", marker = "extra == 'sqlmodel'", specifier = ">=3.3.1" },
     { name = "pydantic", specifier = ">=2.12.5" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "sqlmodel", marker = "extra == 'sqlmodel'", specifier = ">=0.0.33" },
 ]
 provides-extras = ["fastapi", "sqlmodel", "azure-key-vault", "aws-secrets-manager"]

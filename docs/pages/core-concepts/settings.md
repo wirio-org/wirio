@@ -11,11 +11,11 @@ Wirio supports multiple sources. When the same key exists in multiple sources, t
 
 The following sources are loaded, by default, in this order:
 
-1. `settings.json`
-2. `settings.{environment}.json`
+1. `settings.yaml`
+2. `settings.{environment}.yaml`
 3. Environment variables
 
-So, in the default settings, environment variables have higher priority than JSON files because the source is added after them. This means that if a key exists in both `settings.json` and environment variables, the value from environment variables will be used.
+So, in the default settings, environment variables have higher priority than YAML files because the source is added after them. This means that if a key exists in both `settings.yaml` and environment variables, the value from environment variables will be used.
 
 If we add more sources, those will have higher priority than the defaults. For example, if we add Azure Key Vault as a source, it will override the defaults.
 
@@ -28,7 +28,7 @@ services.settings.add_azure_key_vault(
 
 ## Naming convention
 
-Each source (environment variables, JSON, Azure Key Vault...) has its own naming convention for keys. Wirio uses snake case for settings keys. When loading from sources, keys are normalized to snake case. For example, the `APP_NAME` environment variable maps to `app_name`.
+Each source (environment variables, YAML, Azure Key Vault...) has its own naming convention for keys. Wirio uses snake case for settings keys. When loading from sources, keys are normalized to snake case. For example, the `APP_NAME` environment variable maps to `app_name`.
 
 ## Read a Pydantic model
 
@@ -128,14 +128,11 @@ If a required field is missing, `get_model` raises `KeyError`.
 
 ## Sections
 
-Use `get_section` to read a section. For example, you can read the next JSON:
+Use `get_section` to read a section. For example, you can read the next YAML:
 
-```json
-{
-  "logging": {
-    "log_level": "WARNING"
-  }
-}
+```yaml
+logging:
+  log_level: WARNING
 ```
 
 ```python
@@ -227,4 +224,4 @@ services.settings.add_aws_secrets_manager(
 )
 ```
 
-The secret value must be a JSON object. Wirio reads and flattens that JSON into settings keys, following the same key behavior as JSON files.
+The secret value must be a JSON object. Wirio reads and flattens that JSON into settings keys.
