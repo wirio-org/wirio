@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final, cast, overload
 
 from pydantic import BaseModel
+from wirio_settings import SettingsManager
 
 from wirio._content_root_path_resolver import ContentRootPathResolver
 from wirio._service_lookup._typed_type import TypedType
@@ -17,7 +18,6 @@ from wirio.hosting.host_environment import HostEnvironment
 from wirio.service_descriptor import ServiceDescriptor
 from wirio.service_lifetime import ServiceLifetime
 from wirio.service_provider import ServiceProvider
-from wirio.settings.settings_manager import SettingsManager
 from wirio.wirio_undefined import WirioUndefined
 
 if TYPE_CHECKING:
