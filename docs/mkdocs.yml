@@ -93,7 +93,6 @@ nav:
       - ServiceProviderIsService: api-reference/service-provider-is-service.md
       - ServiceProviderIsKeyedService: api-reference/service-provider-is-keyed-service.md
       - ServiceContainer: api-reference/service-container.md
-      - SettingsManager: api-reference/settings_manager.md
       - HostEnvironment: api-reference/host-environment.md
       - Exceptions: api-reference/exceptions.md
   - Other:
