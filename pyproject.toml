@@ -1,6 +1,6 @@
 [project]
 name = "wirio"
-version = "0.23.0"
+version = "0.24.0"
 description = "Powerful Dependency Injection with Python"
 authors = [{ name = "Andreu Codina" }]
 readme = "README.md"
@@ -20,7 +20,7 @@ keywords = [
     "fastapi",
 ]
 requires-python = ">=3.13"
-dependencies = ["pydantic>=2.12.5", "PyYAML>=6.0.3"]
+dependencies = ["wirio-settings>=0.0.1", "pydantic>=2.12.5"]
 
 [project.urls]
 Homepage = "https://github.com/wirio-org/wirio"
@@ -31,12 +31,6 @@ Changelog = "https://github.com/wirio-org/wirio/releases"
 [project.optional-dependencies]
 fastapi = ["fastapi[standard-no-fastapi-cloud-cli]>=0.137.1"]
 sqlmodel = ["greenlet>=3.3.1", "sqlmodel>=0.0.33"]
-azure-key-vault = [
-    "aiohttp>=3.13.3",
-    "azure-identity>=1.25.2",
-    "azure-keyvault-secrets>=4.10.0",
-]
-aws-secrets-manager = ["boto3[crt]>=1.42.71"]
 
 [dependency-groups]
 dev = [
@@ -51,9 +45,9 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
-    "ruff>=0.15.17",
+    "ruff>=0.15.18",
     "testcontainers[postgres]>=4.14.2",
-    "ty>=0.0.49",
+    "ty>=0.0.51",
 ]
 
 [build-system]
