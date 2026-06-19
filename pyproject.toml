@@ -20,7 +20,7 @@ keywords = [
     "fastapi",
 ]
 requires-python = ">=3.13"
-dependencies = ["wirio-settings>=0.0.1"]
+dependencies = ["wirio-settings>=0.0.1", "pydantic>=2.12.5"]
 
 [project.urls]
 Homepage = "https://github.com/wirio-org/wirio"

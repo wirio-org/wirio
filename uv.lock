@@ -2695,6 +2695,7 @@ name = "wirio"
 version = "0.24.0"
 source = { editable = "." }
 dependencies = [
+    { name = "pydantic" },
     { name = "wirio-settings" },
 ]
 
@@ -2729,6 +2730,7 @@ dev = [
 requires-dist = [
     { name = "fastapi", extras = ["standard-no-fastapi-cloud-cli"], marker = "extra == 'fastapi'", specifier = ">=0.137.1" },
     { name = "greenlet", marker = "extra == 'sqlmodel'", specifier = ">=3.3.1" },
+    { name = "pydantic", specifier = ">=2.12.5" },
     { name = "sqlmodel", marker = "extra == 'sqlmodel'", specifier = ">=0.0.33" },
     { name = "wirio-settings", specifier = ">=0.0.1" },
 ]
