@@ -32,7 +32,7 @@ class HostEnvironment:
     @staticmethod
     def get_current_environment_name() -> str:
         return os.getenv(
-            EnvironmentVariable.WIRIO_ENVIRONMENT.value, Environment.LOCAL.value
+            EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value, Environment.LOCAL.value
         )
 
     @property

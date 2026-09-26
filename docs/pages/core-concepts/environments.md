@@ -8,7 +8,7 @@ This is useful when we want to register different services, enable diagnostics, 
 
 ## Environment source
 
-Wirio reads the environment from the `WIRIO_ENVIRONMENT` environment variable.
+Wirio reads the environment from the `PYTHONAPP_ENVIRONMENT` environment variable.
 
 If the variable is not defined, Wirio defaults to `local`.
 

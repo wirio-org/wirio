@@ -5,6 +5,7 @@ on:
 
 env:
   UV_NO_SYNC: 1
+  UV_VERSION: 0.12.7
 
 jobs:
   test:
@@ -24,8 +25,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
-          version-file: pyproject.toml
-          resolution-strategy: lowest
+          version: ${{ env.UV_VERSION }}
           python-version: ${{ matrix.python-version }}
 
       - name: Install Python packages
@@ -60,8 +60,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
         with:
-          version-file: pyproject.toml
-          resolution-strategy: lowest
+          version: ${{ env.UV_VERSION }}
 
       - name: Install Python packages
         run: uv sync --locked

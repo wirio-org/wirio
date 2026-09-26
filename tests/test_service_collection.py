@@ -2402,7 +2402,9 @@ class TestServiceCollection:
         expected_environment_name = "current_environment"
         mocker.patch.dict(
             os.environ,
-            {EnvironmentVariable.WIRIO_ENVIRONMENT.value: expected_environment_name},
+            {
+                EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value: expected_environment_name
+            },
         )
 
         services = ServiceCollection()
