@@ -29,7 +29,9 @@ class TestHostEnvironment:
         expected_environment_name = "current_environment"
         mocker.patch.dict(
             os.environ,
-            {EnvironmentVariable.WIRIO_ENVIRONMENT.value: expected_environment_name},
+            {
+                EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value: expected_environment_name
+            },
         )
 
         environment = HostEnvironment(content_root_path="")
@@ -41,7 +43,9 @@ class TestHostEnvironment:
         not_expected_environment_name = "not_current_environment"
         mocker.patch.dict(
             os.environ,
-            {EnvironmentVariable.WIRIO_ENVIRONMENT.value: expected_environment_name},
+            {
+                EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value: expected_environment_name
+            },
         )
 
         environment = HostEnvironment(content_root_path="")
@@ -54,7 +58,7 @@ class TestHostEnvironment:
     ) -> None:
         mocker.patch.dict(
             os.environ,
-            {EnvironmentVariable.WIRIO_ENVIRONMENT.value: Environment.LOCAL.value},
+            {EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value: Environment.LOCAL.value},
         )
         environment = HostEnvironment(content_root_path="")
         assert environment.is_local()
@@ -62,7 +66,7 @@ class TestHostEnvironment:
         mocker.patch.dict(
             os.environ,
             {
-                EnvironmentVariable.WIRIO_ENVIRONMENT.value: Environment.DEVELOPMENT.value
+                EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value: Environment.DEVELOPMENT.value
             },
         )
         environment = HostEnvironment(content_root_path="")
@@ -70,14 +74,18 @@ class TestHostEnvironment:
 
         mocker.patch.dict(
             os.environ,
-            {EnvironmentVariable.WIRIO_ENVIRONMENT.value: Environment.STAGING.value},
+            {
+                EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value: Environment.STAGING.value
+            },
         )
         environment = HostEnvironment(content_root_path="")
         assert environment.is_staging()
 
         mocker.patch.dict(
             os.environ,
-            {EnvironmentVariable.WIRIO_ENVIRONMENT.value: Environment.PRODUCTION.value},
+            {
+                EnvironmentVariable.PYTHONAPP_ENVIRONMENT.value: Environment.PRODUCTION.value
+            },
         )
         environment = HostEnvironment(content_root_path="")
         assert environment.is_production()

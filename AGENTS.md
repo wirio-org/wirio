@@ -3,11 +3,7 @@
 # Environment
 
 - Package manager: `uv`.
-- Check code is correct: `make check-code`.
-
-# General guidance
-
-- Use American English.
+- Lint: `make lint`.
 
 # Code style
 
@@ -73,5 +69,6 @@ return value or default
 
 # Documentation
 
+- Use American English.
 - The documentation must be placed in the `docs` directory or the `README` file.
 - Use "we" to refer to the reader and the author together.

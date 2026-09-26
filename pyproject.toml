@@ -1,6 +1,6 @@
 [project]
 name = "wirio"
-version = "0.24.1"
+version = "0.25.0"
 description = "Powerful Dependency Injection with Python"
 authors = [{ name = "Andreu Codina" }]
 readme = "README.md"
@@ -35,7 +35,7 @@ sqlmodel = ["greenlet>=3.3.1", "sqlmodel>=0.0.33"]
 [dependency-groups]
 dev = [
     "asyncpg>=0.31.0",
-    "coverage>=7.14.1",
+    "coverage>=7.15.0",
     "jupyter>=1.1.1",
     "mkdocs-material>=9.7.6",
     "mkdocstrings-python>=2.0.4",
@@ -45,17 +45,14 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
-    "ruff>=0.15.18",
+    "ruff>=0.15.20",
     "testcontainers[postgres]>=4.14.2",
-    "ty>=0.0.51",
+    "ty>=0.0.56",
 ]
 
 [build-system]
-requires = ["uv_build>=0.11.0,<0.12.0"]
+requires = ["uv_build>=0.12.0,<0.13.0"]
 build-backend = "uv_build"
-
-[tool.uv]
-required-version = ">=0.11.0,<0.12.0"
 
 [tool.pyright]
 typeCheckingMode = "strict"
